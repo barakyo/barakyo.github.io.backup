@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="http://itsbarakyo.com/css/bootstrap.css" rel="stylesheet">
+        <link href="http://itsbarakyo.com/css/syntax.css" rel="stylesheet">
+        <script type="text/javascript" src="http://itsbarakyo.com/js/jquery-1.10.2.min.js"></script>
+        <script type="text/javascript" src="http://itsbarakyo.com/js/collapse.js"></script>
+        <title>itsbarakyo | Play Framework: Returning JSON Responses</title>
+    </head>
+    <body>
+        <div class="navbar navbar-inverse navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#mobile-links">
+                      <span class="sr-only">Toggle navigation</span>
+                      <span class="glyphicon glyphicon-chevron-down white"></span>
+                    </button>
+                    <h1>itsbarakyo</h1>
+                </div>
+            </div>
+            <div class="collapse navbar-collapse" id="mobile-links">
+                <ul class="nav navbar visible-xs">
+                    <li>
+                        <a href="http://itsbarakyo.com/" class="btn btn-success btn-lg btn-block">HOME</a>
+                    </li>
+                    <li>
+                        <a href="http://itsbarakyo.com/personal/" class="btn btn-info btn-lg btn-block">PERSONAL</a>
+                    </li>
+                    <li>
+                        <a href="http://itsbarakyo.com/likes/" class="btn btn-like btn-lg btn-block">LIKES</a>
+                    </li>
+                    <li>
+                        <a href="http://itsbarakyo.com/notes/" class="btn btn-warning btn-lg btn-block">NOTES</a>
+                    </li>
+                    <li>
+                        <a href="http://itsbarakyo.com/projects/" class="btn btn-danger btn-lg btn-block">PROJECTS</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="navbar navbar-fixed-top hidden-xs" id="navigation">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-12 hidden-xs">
+                        <div class="btn-toolbar">
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com" class="btn btn-success">HOME</a>
+                            </div>
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com/personal/" class="btn btn-info">PERSONAL</a>
+                            </div>
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com/likes/" class="btn btn-like">LIKES</a>
+                            </div>
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com/notes/" class="btn btn-warning">NOTES</a>
+                            </div>
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com/projects/" class="btn btn-danger">PROJECTS</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+<div class="container" id="post-container">
+    <div class="row">
+        <div class="col-sm-12">
+            <blockquote class="notes">
+                <p>
+                    <a href="http://itsbarakyo.com/notes/2014/04/06/play-framework-returning-json-response">
+                        Play Framework: Returning JSON Responses
+                    </a>
+                </p>
+                <small>06 Apr 2014</small>
+            </blockquote>
+            <p><p>I&#39;ve recently started a project at working using the <a href="http://www.playframework.com/">Play Framework</a> and while its a great framework, I was having a lot of trouble with some of the simplest tasks. I wouldn&#39;t blame Play for my problems, returning to Java after a long hiatus, being spoiled by dynamicly typed languages, and lack of documentation really made such tasks like returning a JSON response difficult.</p>
+
+<p>I figured that I may not be the only in this position, judging by the questions in the IRC channel and lack of responses, I figured it may be a good idea to jot down some of my notes, not only for myself, my coworkers, but for all my fellow Play framework noobs. Apologies for the introduction, I&#39;ll try to keep the rest of this posts and the futures, short, succinct, and to the point.</p>
+
+<h2>tl;dr</h2>
+
+<p>Use ObjectNode class found in the <code>com.fasterxml.jackson.databind.node.ObjectNode</code> package.</p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="kn">import</span> <span class="nn">com.fasterxml.jackson.databind.node.ObjectNode</span><span class="o">;</span>
+
+    <span class="n">ObjectNode</span> <span class="n">response</span> <span class="o">=</span> <span class="n">Json</span><span class="o">.</span><span class="na">newObject</span><span class="o">();</span>
+    <span class="n">response</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;status&quot;</span><span class="o">,</span> <span class="mi">200</span><span class="o">);</span>
+    <span class="n">response</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;message&quot;</span><span class="o">,</span> <span class="s">&quot;Request was successful&quot;</span><span class="o">);</span>
+    <span class="n">response</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;data&quot;</span><span class="o">,</span> <span class="n">Json</span><span class="o">.</span><span class="na">toJson</span><span class="o">(</span><span class="n">users</span><span class="o">));</span>
+    <span class="k">return</span> <span class="nf">ok</span><span class="o">(</span><span class="n">response</span><span class="o">);</span></code></pre></div>
+
+<h2>Using ObjectNode</h2>
+
+<p>To easily return mixed response types, I suggest using the <code>ObjectNode</code> class found in the <code>com.fasterxml.jackson.databind.node.ObjectNode</code> package. Using the class is simple, first instantiate an object:</p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="n">ObjectNode</span> <span class="n">response</span> <span class="o">=</span> <span class="n">Json</span><span class="o">.</span><span class="na">newObject</span><span class="o">();</span></code></pre></div>
+    
+
+<p>From there, you can treat the object similar to a map but using <code>put()</code> function.</p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="n">response</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;status&quot;</span><span class="o">,</span> <span class="mi">200</span><span class="o">);</span>
+    <span class="n">response</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;message&quot;</span><span class="o">,</span> <span class="s">&quot;Request was successful&quot;</span><span class="o">);</span></code></pre></div>
+
+<p>Often times we want to return an object or array of objects. Using the <code>Json.toJson()</code> function found in <code>play.libs.Json</code> we can easily convert objects or lists of objects to be included in our JSON response.</p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="n">response</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;data&quot;</span><span class="o">,</span> <span class="n">Json</span><span class="o">.</span><span class="na">toJson</span><span class="o">(</span><span class="n">users</span><span class="o">));</span></code></pre></div>
+
+<p>Finally, you&#39;ll probably want to use the static return response methods to easily return our JSON response.</p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="k">return</span> <span class="nf">ok</span><span class="o">(</span><span class="n">response</span><span class="o">);</span></code></pre></div>
+</p>
+            <hr />
+        </div>
+    </div>
+</div>

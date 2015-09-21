@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="http://itsbarakyo.com/css/bootstrap.css" rel="stylesheet">
+        <link href="http://itsbarakyo.com/css/syntax.css" rel="stylesheet">
+        <script type="text/javascript" src="http://itsbarakyo.com/js/jquery-1.10.2.min.js"></script>
+        <script type="text/javascript" src="http://itsbarakyo.com/js/collapse.js"></script>
+        <title>itsbarakyo | Writing Test Cases for Laravel</title>
+    </head>
+    <body>
+        <div class="navbar navbar-inverse navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#mobile-links">
+                      <span class="sr-only">Toggle navigation</span>
+                      <span class="glyphicon glyphicon-chevron-down white"></span>
+                    </button>
+                    <h1>itsbarakyo</h1>
+                </div>
+            </div>
+            <div class="collapse navbar-collapse" id="mobile-links">
+                <ul class="nav navbar visible-xs">
+                    <li>
+                        <a href="http://itsbarakyo.com/" class="btn btn-success btn-lg btn-block">HOME</a>
+                    </li>
+                    <li>
+                        <a href="http://itsbarakyo.com/personal/" class="btn btn-info btn-lg btn-block">PERSONAL</a>
+                    </li>
+                    <li>
+                        <a href="http://itsbarakyo.com/likes/" class="btn btn-like btn-lg btn-block">LIKES</a>
+                    </li>
+                    <li>
+                        <a href="http://itsbarakyo.com/notes/" class="btn btn-warning btn-lg btn-block">NOTES</a>
+                    </li>
+                    <li>
+                        <a href="http://itsbarakyo.com/projects/" class="btn btn-danger btn-lg btn-block">PROJECTS</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="navbar navbar-fixed-top hidden-xs" id="navigation">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-12 hidden-xs">
+                        <div class="btn-toolbar">
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com" class="btn btn-success">HOME</a>
+                            </div>
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com/personal/" class="btn btn-info">PERSONAL</a>
+                            </div>
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com/likes/" class="btn btn-like">LIKES</a>
+                            </div>
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com/notes/" class="btn btn-warning">NOTES</a>
+                            </div>
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com/projects/" class="btn btn-danger">PROJECTS</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+<div class="container" id="post-container">
+    <div class="row">
+        <div class="col-sm-12">
+            <blockquote class="notes">
+                <p>
+                    <a href="http://itsbarakyo.com/notes/2013/11/10/writing-test-cases-for-laravel">
+                        Writing Test Cases for Laravel
+                    </a>
+                </p>
+                <small>10 Nov 2013</small>
+            </blockquote>
+            <p><p>Besides writing test cases just because &quot;everyone else is&quot;, we should be writing test cases since they&#39;ll help create a stronger trust in our code that our functions are doing what they should be doing.</p>
+
+<h3>Requirements</h3>
+
+<ul>
+<li>PHP</li>
+<li>PHPUnit (you will most likely need a global install) </li>
+<li>Test Cases (DUH)</li>
+</ul>
+
+<h3>Helpers</h3>
+
+<p>Helpers are a set of classes that we create to take care of common mundane tasks. For example, the User Helper for testing provides functions for returning a user with a specified role or easily create a new user with the specified role if one does not exist or the user requests one.</p>
+
+<p>Since we can define helpers for a number of things, we want to ensure that the helpers for our test case don&#39;t conflict with helpers that we use in other applications, for this we&#39;ll create our test helpers in the sub-namespace <code>Testing</code> within the <code>Helpers</code> name space.</p>
+
+<p>PHP Namespaces are defined as the first line after the <code>&lt;?php</code> opening. It <strong>MUST</strong> be the first line after the opening, or else PHP will throw an error.</p>
+
+<div class="highlight"><pre><code class="language-php" data-lang="php"><span class="cp">&lt;?php</span>
+
+<span class="k">namespace</span> <span class="nx">Helpers\Testing</span><span class="p">;</span></code></pre></div>
+
+<p>After defining the namespace, you will most likely want to include common exceptions that will be thrown when accessing models.</p>
+
+<div class="highlight"><pre><code class="language-php" data-lang="php"><span class="x">use Illuminate\Database\Eloquent\ModelNotFoundException;</span></code></pre></div>
+
+<p>From there, you&#39;re ready and free to define your helper class as you please. </p>
+
+<p><strong>PLEASE COMMENT FUNCTIONS</strong></p>
+
+<h3>Test Cases</h3>
+
+<p>To write test cases you must extend from the Laravel&#39;s base <code>TestCase</code> class. When writing test cases please follow certain conventions:</p>
+
+<ul>
+<li>The name of the file and the class for the test case should follow the naming convention ControllerFunctionTest
+
+<ul>
+<li>Ex: Writing test cases for the Index function for the User Controller: UserControllerIndexTest.php</li>
+</ul></li>
+</ul>
+
+<div class="highlight"><pre><code class="language-php" data-lang="php"><span class="cp">&lt;?php</span>
+<span class="k">class</span> <span class="nc">UserControllerIndexTest</span> <span class="k">extends</span> <span class="nx">TestCase</span> <span class="p">{</span>
+
+<span class="p">}</span></code></pre></div>
+
+<ul>
+<li>All functions that are test musted start with the word <strong>test</strong> (PHPUnit convention) or else PHPUnit will not find your function</li>
+<li>Functions should specify what role they&#39;re testing as, ex: <code>testIndexAsAdmin()</code></li>
+</ul>
+
+<h3>Tips for Writing Test Cases</h3>
+
+<h4>Calling Routes</h4>
+
+<p>We want to guarantee our that not only our functions are correct, but that our routes/API are calling the correct functions. If you can, please test routes rather than functions. You can call routes using the <code>$this-&gt;call()</code> function. More information for calling routes can be found in <a href="http://laravel.com/docs/testing#calling-routes-from-tests">Laravel&#39;s Documentation</a>.</p>
+
+<h4>Acting as a User</h4>
+
+<p>To act as a user, you can use the <code>$this-&gt;be()</code> function, which can also be found in <a href="http://laravel.com/docs/testing#helper-methods">Laravel&#39;s Documentation</a></p>
+
+<h4>Specifying Exceptons</h4>
+
+<p>An exception being throw can be a success if a user should not have access to certain functionality. Since our API immediately throws a InsufficientPermissionsException when a user doesn&#39;t have the right permissions, we can easily have our test cases catch this and mark them as a passed test. To specify that an exception should be thrown, you can define it in the PHPDocs comments like so:</p>
+
+<div class="highlight"><pre><code class="language-php" data-lang="php"><span class="cp">&lt;?php</span>
+    <span class="k">class</span> <span class="nc">UserControllerIndexTest</span> <span class="k">extends</span> <span class="nx">TestCase</span> <span class="p">{</span>
+        <span class="sd">/**</span>
+<span class="sd">         * Tests user index function as student, passes on thrown exception</span>
+<span class="sd">         * @expectedException InsufficientPermissionsException</span>
+<span class="sd">        */</span>
+        <span class="k">public</span> <span class="k">function</span> <span class="nf">testIndexAsStudent</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nv">$user</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">userHelper</span><span class="o">-&gt;</span><span class="na">getStudentUser</span><span class="p">();</span>
+            <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">be</span><span class="p">(</span><span class="nv">$user</span><span class="p">);</span>
+            <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">call</span><span class="p">(</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">base_route</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span></code></pre></div>
+
+<h4>Writing Functions</h4>
+
+<p><strong>Note:</strong> Only one test per function, so you cannot have a function return users with all roles and test them as one test case. Hence the need for the naming convention of what you&#39;re testing as what role.</p>
+
+<p>Test cases can become repetitive, to ease the amount of typing you can write a function (<em>GASP!</em>) which we can call in our <del>all</del> most  of our tests. </p>
+
+<h3>References</h3>
+
+<ul>
+<li><a href="http://laravel.com/docs/testing">Laravel Documentation on Testing</a></li>
+<li><a href="http://phpunit.de/manual/current/en/index.html">PHPUnit Documentation</a></li>
+</ul>
+</p>
+            <hr />
+        </div>
+    </div>
+</div>

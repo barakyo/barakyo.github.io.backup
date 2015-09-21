@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="http://itsbarakyo.com/css/bootstrap.css" rel="stylesheet">
+        <link href="http://itsbarakyo.com/css/syntax.css" rel="stylesheet">
+        <script type="text/javascript" src="http://itsbarakyo.com/js/jquery-1.10.2.min.js"></script>
+        <script type="text/javascript" src="http://itsbarakyo.com/js/collapse.js"></script>
+        <title>itsbarakyo | Counter Resets and Database Magic</title>
+    </head>
+    <body>
+        <div class="navbar navbar-inverse navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#mobile-links">
+                      <span class="sr-only">Toggle navigation</span>
+                      <span class="glyphicon glyphicon-chevron-down white"></span>
+                    </button>
+                    <h1>itsbarakyo</h1>
+                </div>
+            </div>
+            <div class="collapse navbar-collapse" id="mobile-links">
+                <ul class="nav navbar visible-xs">
+                    <li>
+                        <a href="http://itsbarakyo.com/" class="btn btn-success btn-lg btn-block">HOME</a>
+                    </li>
+                    <li>
+                        <a href="http://itsbarakyo.com/personal/" class="btn btn-info btn-lg btn-block">PERSONAL</a>
+                    </li>
+                    <li>
+                        <a href="http://itsbarakyo.com/likes/" class="btn btn-like btn-lg btn-block">LIKES</a>
+                    </li>
+                    <li>
+                        <a href="http://itsbarakyo.com/notes/" class="btn btn-warning btn-lg btn-block">NOTES</a>
+                    </li>
+                    <li>
+                        <a href="http://itsbarakyo.com/projects/" class="btn btn-danger btn-lg btn-block">PROJECTS</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="navbar navbar-fixed-top hidden-xs" id="navigation">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-12 hidden-xs">
+                        <div class="btn-toolbar">
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com" class="btn btn-success">HOME</a>
+                            </div>
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com/personal/" class="btn btn-info">PERSONAL</a>
+                            </div>
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com/likes/" class="btn btn-like">LIKES</a>
+                            </div>
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com/notes/" class="btn btn-warning">NOTES</a>
+                            </div>
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com/projects/" class="btn btn-danger">PROJECTS</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+<div class="container" id="post-container">
+    <div class="row">
+        <div class="col-sm-12">
+            <blockquote class="projects">
+                <p>
+                    <a href="http://itsbarakyo.com/projects/2013/12/08/counter-resets-and-database-magic">
+                        Counter Resets and Database Magic
+                    </a>
+                </p>
+                <small>08 Dec 2013</small>
+            </blockquote>
+            <p><p>Recently, the need for a standard numbering convention came up for one of our projects at work. The client 
+requested to be able to access protocols by a unique ID. Originally I thought it&#39;d be a no brainer, I&#39;d explain 
+to them that the each protocol is already uniquely identifiable within the database, and they can just refer to 
+protocols by their unique ID in the database. Unfortunately, they didn&#39;t seem too fond of the unique ID numbering 
+scheme and proposed that the application follow a certain convention, which they created.</p>
+
+<p>The convention was simple enough to understand. It followed the format of:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">YYYY-XXX
+</code></pre></div>
+<p>Where <code>YYYY</code> was the Academic Year and <code>XXX</code> was a 3 digit number signifying that it was the nth protocol 
+scheduled for review of that academic year. For example, a protocol with the number</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">1314-016
+</code></pre></div>
+<p>Would be the 16th protocol scheduled within the 2013-2014 academic year.</p>
+
+<p>While the standard is easy enough, it brings up some concerns.</p>
+
+<ol>
+<li>Protocol numbers are generated once a protocol has been scheduled for committee review.</li>
+<li>Protocol numbers must refer to a specific protocol.</li>
+<li>The protocol number must reset after every academic year.</li>
+<li>How can I enforce this standard within the database?</li>
+</ol>
+
+<p>Regarding the first concern, I couldn&#39;t simply append a column to the protocol table since I would have a <code>NULL</code> 
+field until the protocol was scheduled (if it was ever scheduled). While adding a column would allow me to specify
+which number belonged to which protocol, it invalidate the 3NF standard I&#39;m trying to achieve. Also, how 
+would I have the database automatically increment or reset the value of the counter?</p>
+
+<p>I realized quickly that I needed another table (or two). Immediately, I realized that my <code>protocol_number</code> 
+table would need the following columns:</p>
+
+<ul>
+<li>ID - mainly for reference</li>
+<li>Protocol ID - specifies which number this protocol refers to</li>
+<li>Academic Year - the year part of the number convention</li>
+<li>Protocol Number - the counter part of the number convention</li>
+</ul>
+
+<p>While designing the table, I also realized that I didn&#39;t want to have to worry about the application needing to 
+worry about which protocol number to insert within the column and that lead me to the idea of a trigger. I know 
+that I can easily count the number of rows within a table using the SQL command <code>count(*)</code>, but how could I use 
+it for handling the protocol number field? I realized that my answer would rely in a trigger that would fire 
+before each insert on the table.</p>
+
+<p>Before jumping into creating the trigger, I had to give some more thought to the the academic year field. While 
+I could easily represent academic years with an <code>INT</code> field, it didn&#39;t seem to be sufficient, something just felt 
+dirty. I made the decision that I&#39;d create a new table, <code>academic_year</code>, which would simply store academic years. 
+This way, I could have the <code>protocol_number</code> table refer to the <code>academic_year</code> table as a foreign key.
+Specifying the field as a foreign key also provided me the added benefit of being able to lookup which protocols
+were scheduled for what year (a feature that hasn&#39;t been asked for, but can now be easily implemented).</p>
+
+<p>Given this analysis, we&#39;ve composed two tables with the following structure:</p>
+
+<div class="highlight"><pre><code class="language-mysql" data-lang="mysql"><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="nf">academic_year</span><span class="p">(</span>
+    <span class="n">id</span> <span class="kt">int</span> <span class="k">UNSIGNED</span> <span class="k">NOT</span> <span class="no">NULL</span> <span class="kp">AUTO_INCREMENT</span><span class="p">,</span>
+    <span class="n">academic_year</span> <span class="kt">int</span> <span class="k">UNSIGNED</span> <span class="k">NOT</span> <span class="no">NULL</span><span class="p">,</span>
+    <span class="k">PRIMARY</span> <span class="k">KEY</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">);</span>
+
+<span class="k">CREATE</span> <span class="k">TABLE</span> <span class="nf">protocol_number</span><span class="p">(</span>
+    <span class="n">id</span> <span class="kt">int</span> <span class="k">UNSIGNED</span> <span class="k">NOT</span> <span class="no">NULL</span> <span class="kp">AUTO_INCREMENT</span><span class="p">,</span>
+    <span class="n">academic_year_id</span> <span class="kt">int</span> <span class="k">UNSIGNED</span> <span class="k">NOT</span> <span class="no">NULL</span><span class="p">,</span>
+    <span class="n">protocol_id</span> <span class="kt">int</span> <span class="k">UNSIGNED</span> <span class="k">NOT</span> <span class="no">NULL</span><span class="p">,</span>
+    <span class="n">protocol_number</span> <span class="kt">int</span> <span class="k">UNSIGNED</span> <span class="k">NOT</span> <span class="no">NULL</span><span class="p">,</span>
+    <span class="k">FOREIGN</span> <span class="k">KEY</span> <span class="p">(</span><span class="n">protocol_id</span><span class="p">)</span> <span class="k">REFERENCES</span> <span class="nf">protocols</span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+    <span class="k">KEY</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">);</span></code></pre></div>
+
+<p>Almost complete. We still have one tiny little problem. We want to ensure that our protocol numbers are unique 
+and also that they&#39;re unique to a single protocol. Using primary keys we can specify that our <code>protocol_number</code> 
+and <code>academic_year_id</code> columns are unique. In addition, we can easily add a unique key on our <code>protocol_id</code> field 
+allowing us to ensure that this field is also unique. Doing so creates the following structure:</p>
+
+<div class="highlight"><pre><code class="language-mysql" data-lang="mysql"><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="nf">protocol_number</span><span class="p">(</span>
+    <span class="n">id</span> <span class="kt">int</span> <span class="k">UNSIGNED</span> <span class="k">NOT</span> <span class="no">NULL</span> <span class="kp">AUTO_INCREMENT</span><span class="p">,</span>
+    <span class="n">academic_year_id</span> <span class="kt">int</span> <span class="k">UNSIGNED</span> <span class="k">NOT</span> <span class="no">NULL</span><span class="p">,</span>
+    <span class="n">protocol_id</span> <span class="kt">int</span> <span class="k">UNSIGNED</span> <span class="k">NOT</span> <span class="no">NULL</span><span class="p">,</span>
+    <span class="n">protocol_number</span> <span class="kt">int</span> <span class="k">UNSIGNED</span> <span class="k">NOT</span> <span class="no">NULL</span><span class="p">,</span>
+    <span class="k">FOREIGN</span> <span class="k">KEY</span> <span class="p">(</span><span class="n">protocol_id</span><span class="p">)</span> <span class="k">REFERENCES</span> <span class="nf">protocols</span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+    <span class="k">UNIQUE</span> <span class="k">KEY</span> <span class="nf">unique_protocol_id</span> <span class="p">(</span><span class="n">protocol_id</span><span class="p">),</span>
+    <span class="k">FOREIGN</span> <span class="k">KEY</span> <span class="p">(</span><span class="n">academic_year_id</span><span class="p">)</span> <span class="k">REFERENCES</span> <span class="nf">academic_year</span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+    <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="n">protocol_number</span><span class="p">,</span> <span class="n">academic_year_id</span><span class="p">),</span>
+    <span class="k">KEY</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">);</span></code></pre></div>
+
+<p>Finally, we can create our trigger to handle incrementing the counter. Our trigger will be based around the query</p>
+
+<div class="highlight"><pre><code class="language-mysql" data-lang="mysql"><span class="k">SELECT</span> <span class="nf">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">as</span> <span class="n">num_protocols</span> 
+<span class="k">FROM</span> <span class="n">eirb_number</span> 
+<span class="k">WHERE</span> <span class="n">academic_year_id</span><span class="o">=</span><span class="p">[</span><span class="n">ACADEMIC_YEAR_ID</span><span class="p">]</span></code></pre></div>
+
+<p>The query will return the number of rows that exist with the given <code>ACADEMIC_YEAR_ID</code>. All we would have to do 
+now is take the results of this query, increment it by 1, and then set it as the value for the 
+<code>protocol_number</code> column for the new row being inserted into the database. Given our analysis it sounds like 
+we have all we need to create our a trigger, that is, when it occurs, <code>BEFORE INSERT</code> and  what we want to 
+add/change <code>protocol_number</code> with our <code>count(*)</code> value.</p>
+
+<p>Behold, our trigger:</p>
+
+<div class="highlight"><pre><code class="language-mysql" data-lang="mysql"><span class="n">delimiter</span> <span class="o">//</span>
+<span class="k">CREATE</span> <span class="k">TRIGGER</span> <span class="n">insert_protocol_num_trigger</span> 
+<span class="k">BEFORE</span> <span class="k">INSERT</span> <span class="k">on</span> <span class="n">eirb_number</span>
+<span class="k">for</span> <span class="k">each</span> <span class="n">row</span>
+<span class="n">BEGIN</span>
+    <span class="kt">SET</span> <span class="n">new</span><span class="p">.</span><span class="n">protocol_number</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="k">SELECT</span> <span class="nf">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">as</span> <span class="n">num_protocols</span> 
+        <span class="k">FROM</span> <span class="n">eirb_number</span> 
+        <span class="k">WHERE</span> <span class="n">academic_year_id</span><span class="o">=</span><span class="n">new</span><span class="p">.</span><span class="n">academic_year_id</span>
+    <span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+<span class="n">END</span><span class="p">;</span> <span class="o">//</span>
+<span class="n">DELIMITER</span> <span class="p">;</span></code></pre></div>
+
+<p>Now all our queries/application have to worry about is what protocol they want to create the number for and 
+which academic year that protocol belongs to. The database will handle the rest. Our insert query can now look 
+something like:</p>
+
+<div class="highlight"><pre><code class="language-mysql" data-lang="mysql"><span class="k">INSERT</span> <span class="k">INTO</span> <span class="nf">protocol_number</span><span class="p">(</span><span class="n">protocol_id</span><span class="p">,</span> <span class="n">academic_year_id</span><span class="p">)</span> <span class="k">VALUES</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span></code></pre></div>
+
+<p>Now we&#39;ve handled the case of reset counters through the use of database magic (AKA triggers).</p>
+
+<!---
+ Protocols can also have renewals and 
+revisions, which would follow a similar format, just with certain extensions. If the protocol from the previous 
+example was renewed for another year, then the renewed protocol would have the number:
+
+    1314-016-a
+
+The appended letters `a-z` would sig
+-->
+</p>
+            <hr />
+        </div>
+    </div>
+</div>

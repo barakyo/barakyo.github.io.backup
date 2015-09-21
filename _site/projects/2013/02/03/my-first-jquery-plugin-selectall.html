@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="http://itsbarakyo.com/css/bootstrap.css" rel="stylesheet">
+        <link href="http://itsbarakyo.com/css/syntax.css" rel="stylesheet">
+        <script type="text/javascript" src="http://itsbarakyo.com/js/jquery-1.10.2.min.js"></script>
+        <script type="text/javascript" src="http://itsbarakyo.com/js/collapse.js"></script>
+        <title>itsbarakyo | My first jQuery Plugin--SelectAll</title>
+    </head>
+    <body>
+        <div class="navbar navbar-inverse navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#mobile-links">
+                      <span class="sr-only">Toggle navigation</span>
+                      <span class="glyphicon glyphicon-chevron-down white"></span>
+                    </button>
+                    <h1>itsbarakyo</h1>
+                </div>
+            </div>
+            <div class="collapse navbar-collapse" id="mobile-links">
+                <ul class="nav navbar visible-xs">
+                    <li>
+                        <a href="http://itsbarakyo.com/" class="btn btn-success btn-lg btn-block">HOME</a>
+                    </li>
+                    <li>
+                        <a href="http://itsbarakyo.com/personal/" class="btn btn-info btn-lg btn-block">PERSONAL</a>
+                    </li>
+                    <li>
+                        <a href="http://itsbarakyo.com/likes/" class="btn btn-like btn-lg btn-block">LIKES</a>
+                    </li>
+                    <li>
+                        <a href="http://itsbarakyo.com/notes/" class="btn btn-warning btn-lg btn-block">NOTES</a>
+                    </li>
+                    <li>
+                        <a href="http://itsbarakyo.com/projects/" class="btn btn-danger btn-lg btn-block">PROJECTS</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="navbar navbar-fixed-top hidden-xs" id="navigation">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-12 hidden-xs">
+                        <div class="btn-toolbar">
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com" class="btn btn-success">HOME</a>
+                            </div>
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com/personal/" class="btn btn-info">PERSONAL</a>
+                            </div>
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com/likes/" class="btn btn-like">LIKES</a>
+                            </div>
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com/notes/" class="btn btn-warning">NOTES</a>
+                            </div>
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com/projects/" class="btn btn-danger">PROJECTS</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+<div class="container" id="post-container">
+    <div class="row">
+        <div class="col-sm-12">
+            <blockquote class="projects">
+                <p>
+                    <a href="http://itsbarakyo.com/projects/2013/02/03/my-first-jquery-plugin-selectall">
+                        My first jQuery Plugin--SelectAll
+                    </a>
+                </p>
+                <small>03 Feb 2013</small>
+            </blockquote>
+            <p><p>
+    Refactoring code has been on my mind more lately than usual. I feel that if I&#39;m not actively thinking and keeping in mind of what I&#39;m coding, that I&#39;m bound to rewrite code I&#39;ve already written elsewhere. While working on Gavel&#39;s &quot;Manage&quot; page (still thinking of a clever title for that page), I realized that I had a set of checkboxes that I needed to keep track of for both my labels tab and my events tab. I wrote some small Javascript code to handle keeping track of labels as well as select/deselect all checkboxes, but when I started the events section, I realize that I didn&#39;t want to have to rewrite all this code. A lightbulb went off in my head and rather than googling for a jQuery plugin, I decided to challenge myself and write my own, so I present <a href="https://github.com/barakyo/selectall" target="_blank">jQuery Select All</a>. The plugin will take checkboxes as an input and keep track of them in an array. An optional select/deselect all can be passed in with the allSelector parameter. I&#39;m sure this has been written already, but it was a good challenge for myself to think abstractly. Go check it out and fork me if you want!
+</p></p>
+            <hr />
+        </div>
+    </div>
+</div>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="http://itsbarakyo.com/css/bootstrap.css" rel="stylesheet">
+        <link href="http://itsbarakyo.com/css/syntax.css" rel="stylesheet">
+        <script type="text/javascript" src="http://itsbarakyo.com/js/jquery-1.10.2.min.js"></script>
+        <script type="text/javascript" src="http://itsbarakyo.com/js/collapse.js"></script>
+        <title>itsbarakyo | Python-Excel: XLRD & XLWT</title>
+    </head>
+    <body>
+        <div class="navbar navbar-inverse navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#mobile-links">
+                      <span class="sr-only">Toggle navigation</span>
+                      <span class="glyphicon glyphicon-chevron-down white"></span>
+                    </button>
+                    <h1>itsbarakyo</h1>
+                </div>
+            </div>
+            <div class="collapse navbar-collapse" id="mobile-links">
+                <ul class="nav navbar visible-xs">
+                    <li>
+                        <a href="http://itsbarakyo.com/" class="btn btn-success btn-lg btn-block">HOME</a>
+                    </li>
+                    <li>
+                        <a href="http://itsbarakyo.com/personal/" class="btn btn-info btn-lg btn-block">PERSONAL</a>
+                    </li>
+                    <li>
+                        <a href="http://itsbarakyo.com/likes/" class="btn btn-like btn-lg btn-block">LIKES</a>
+                    </li>
+                    <li>
+                        <a href="http://itsbarakyo.com/notes/" class="btn btn-warning btn-lg btn-block">NOTES</a>
+                    </li>
+                    <li>
+                        <a href="http://itsbarakyo.com/projects/" class="btn btn-danger btn-lg btn-block">PROJECTS</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="navbar navbar-fixed-top hidden-xs" id="navigation">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-12 hidden-xs">
+                        <div class="btn-toolbar">
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com" class="btn btn-success">HOME</a>
+                            </div>
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com/personal/" class="btn btn-info">PERSONAL</a>
+                            </div>
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com/likes/" class="btn btn-like">LIKES</a>
+                            </div>
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com/notes/" class="btn btn-warning">NOTES</a>
+                            </div>
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com/projects/" class="btn btn-danger">PROJECTS</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+<div class="container" id="post-container">
+    <div class="row">
+        <div class="col-sm-12">
+            <blockquote class="projects">
+                <p>
+                    <a href="http://itsbarakyo.com/projects/2013/05/29/python-excel-xlrd-and-xlwt">
+                        Python-Excel: XLRD & XLWT
+                    </a>
+                </p>
+                <small>29 May 2013</small>
+            </blockquote>
+            <p><p>The other week we received a request for a small script from a department on campus. The department needed to evaluate data from a Microsoft Excel worksheet which they wrote a macro for. Their problem, though, was to aggregate all their data into one sheet. This aggregation process was not only the most tedious but was also their longest task taking nearly 2 weeks to complete. My coworkers and I were shocked that they&#39;ve continued this process for so long without looking to automate it somehow, so we took on the challenge to ease the pain in their lives. </p>
+
+<p>I set out to write a Python script and immediately researched what Microsoft Excel libraries are available for Python. I quick found Python-Excel and the XLRD and XLWT libraries, which I have to say, have been nothing short but amazing to use. The libraries are intuitive and easy to use. There was not a function I could think of that this library didn&#39;t provide. The code can be found on <a href="https://github.com/barakyo/excel-extractor">GitHub</a>.</p>
+
+<p>Just some quick examples of how I was using the libraries:</p>
+
+<p><strong>Opening an excel file:</strong> </p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">try</span><span class="p">:</span>
+    <span class="c"># Open the book</span>
+    <span class="n">book</span> <span class="o">=</span> <span class="n">xlrd</span><span class="o">.</span><span class="n">open_workbook</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&quot;File: &quot;</span> <span class="o">+</span> <span class="n">file_name</span> <span class="o">+</span> <span class="s">&quot; does not exist&quot;</span><span class="p">)</span></code></pre></div>
+
+<p><strong>Opening a specific sheet:</strong></p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="c"># Try to open the specific sheet</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">summary_sheet</span> <span class="o">=</span> <span class="n">book</span><span class="o">.</span><span class="n">sheet_by_name</span><span class="p">(</span><span class="s">&#39;For Summary File&#39;</span><span class="p">)</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&#39;Could not open sheet &#39;</span> <span class="o">+</span> <span class="n">sheet_name</span> <span class="o">+</span> <span class="s">&#39; in file &#39;</span> <span class="o">+</span> <span class="n">file_name</span><span class="p">)</span></code></pre></div>
+
+<p><strong>Copying a row:</strong></p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">row</span> <span class="o">=</span> <span class="p">[</span><span class="n">summary_sheet</span><span class="o">.</span><span class="n">cell</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">summary_sheet</span><span class="o">.</span><span class="n">ncols</span><span class="p">)]</span></code></pre></div>
+
+<p><strong>Creating a new workbook and sheet:</strong></p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="c"># Create a new workbook</span>
+<span class="n">new_workbook</span> <span class="o">=</span> <span class="n">xlwt</span><span class="o">.</span><span class="n">Workbook</span><span class="p">()</span>
+<span class="c"># Create a new sheet</span>
+<span class="n">new_sheet</span> <span class="o">=</span> <span class="n">new_workbook</span><span class="o">.</span><span class="n">add_sheet</span><span class="p">(</span><span class="s">&#39;Sheet1&#39;</span><span class="p">)</span></code></pre></div>
+
+<p><strong>Writing data to the new workbook:</strong></p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="c"># Write the data to the sheet</span>
+<span class="n">new_sheet</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">current_row</span><span class="p">[</span><span class="n">col</span><span class="p">])</span></code></pre></div>
+
+<p><strong>Saving a workbook:</strong></p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">new_workbook</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span></code></pre></div>
+
+<p>Doesn&#39;t get much simpler than that! :)</p>
+</p>
+            <hr />
+        </div>
+    </div>
+</div>

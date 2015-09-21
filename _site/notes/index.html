@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="http://itsbarakyo.com/css/bootstrap.css" rel="stylesheet">
+        <link href="http://itsbarakyo.com/css/syntax.css" rel="stylesheet">
+        <script type="text/javascript" src="http://itsbarakyo.com/js/jquery-1.10.2.min.js"></script>
+        <script type="text/javascript" src="http://itsbarakyo.com/js/collapse.js"></script>
+        <title>itsbarakyo | </title>
+    </head>
+    <body>
+        <div class="navbar navbar-inverse navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#mobile-links">
+                      <span class="sr-only">Toggle navigation</span>
+                      <span class="glyphicon glyphicon-chevron-down white"></span>
+                    </button>
+                    <h1>itsbarakyo</h1>
+                </div>
+            </div>
+            <div class="collapse navbar-collapse" id="mobile-links">
+                <ul class="nav navbar visible-xs">
+                    <li>
+                        <a href="http://itsbarakyo.com/" class="btn btn-success btn-lg btn-block">HOME</a>
+                    </li>
+                    <li>
+                        <a href="http://itsbarakyo.com/personal/" class="btn btn-info btn-lg btn-block">PERSONAL</a>
+                    </li>
+                    <li>
+                        <a href="http://itsbarakyo.com/likes/" class="btn btn-like btn-lg btn-block">LIKES</a>
+                    </li>
+                    <li>
+                        <a href="http://itsbarakyo.com/notes/" class="btn btn-warning btn-lg btn-block">NOTES</a>
+                    </li>
+                    <li>
+                        <a href="http://itsbarakyo.com/projects/" class="btn btn-danger btn-lg btn-block">PROJECTS</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="navbar navbar-fixed-top hidden-xs" id="navigation">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-12 hidden-xs">
+                        <div class="btn-toolbar">
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com" class="btn btn-success">HOME</a>
+                            </div>
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com/personal/" class="btn btn-info">PERSONAL</a>
+                            </div>
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com/likes/" class="btn btn-like">LIKES</a>
+                            </div>
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com/notes/" class="btn btn-warning">NOTES</a>
+                            </div>
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com/projects/" class="btn btn-danger">PROJECTS</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+<div class="container" id="post-container">
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+            <div class="row">
+    <div class="col-sm-12">
+        <blockquote class="notes">
+            <p>
+                <a href="http://itsbarakyo.com/notes/2014/04/06/play-framework-returning-json-response.html">
+                    Play Framework: Returning JSON Responses
+                </a>
+            </p>
+            <small>06 Apr 2014</small>
+        </blockquote>
+        <p><p>I&#39;ve recently started a project at working using the <a href="http://www.playframework.com/">Play Framework</a> and while its a great framework, I was having a lot of trouble with some of the simplest tasks. I wouldn&#39;t blame Play for my problems, returning to Java after a long hiatus, being spoiled by dynamicly typed languages, and lack of documentation really made such tasks like returning a JSON response difficult.</p>
+
+<p>I figured that I may not be the only in this position, judging by the questions in the IRC channel and lack of responses, I figured it may be a good idea to jot down some of my notes, not only for myself, my coworkers, but for all my fellow Play framework noobs. Apologies for the introduction, I&#39;ll try to keep the rest of this posts and the futures, short, succinct, and to the point.</p>
+
+<h2>tl;dr</h2>
+
+<p>Use ObjectNode class found in the <code>com.fasterxml.jackson.databind.node.ObjectNode</code> package.</p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="kn">import</span> <span class="nn">com.fasterxml.jackson.databind.node.ObjectNode</span><span class="o">;</span>
+
+    <span class="n">ObjectNode</span> <span class="n">response</span> <span class="o">=</span> <span class="n">Json</span><span class="o">.</span><span class="na">newObject</span><span class="o">();</span>
+    <span class="n">response</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;status&quot;</span><span class="o">,</span> <span class="mi">200</span><span class="o">);</span>
+    <span class="n">response</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;message&quot;</span><span class="o">,</span> <span class="s">&quot;Request was successful&quot;</span><span class="o">);</span>
+    <span class="n">response</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;data&quot;</span><span class="o">,</span> <span class="n">Json</span><span class="o">.</span><span class="na">toJson</span><span class="o">(</span><span class="n">users</span><span class="o">));</span>
+    <span class="k">return</span> <span class="nf">ok</span><span class="o">(</span><span class="n">response</span><span class="o">);</span></code></pre></div>
+
+<h2>Using ObjectNode</h2>
+
+<p>To easily return mixed response types, I suggest using the <code>ObjectNode</code> class found in the <code>com.fasterxml.jackson.databind.node.ObjectNode</code> package. Using the class is simple, first instantiate an object:</p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="n">ObjectNode</span> <span class="n">response</span> <span class="o">=</span> <span class="n">Json</span><span class="o">.</span><span class="na">newObject</span><span class="o">();</span></code></pre></div>
+    
+
+<p>From there, you can treat the object similar to a map but using <code>put()</code> function.</p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="n">response</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;status&quot;</span><span class="o">,</span> <span class="mi">200</span><span class="o">);</span>
+    <span class="n">response</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;message&quot;</span><span class="o">,</span> <span class="s">&quot;Request was successful&quot;</span><span class="o">);</span></code></pre></div>
+
+<p>Often times we want to return an object or array of objects. Using the <code>Json.toJson()</code> function found in <code>play.libs.Json</code> we can easily convert objects or lists of objects to be included in our JSON response.</p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="n">response</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;data&quot;</span><span class="o">,</span> <span class="n">Json</span><span class="o">.</span><span class="na">toJson</span><span class="o">(</span><span class="n">users</span><span class="o">));</span></code></pre></div>
+
+<p>Finally, you&#39;ll probably want to use the static return response methods to easily return our JSON response.</p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="k">return</span> <span class="nf">ok</span><span class="o">(</span><span class="n">response</span><span class="o">);</span></code></pre></div>
+</p>
+        <hr />
+    </div>
+</div>
+        
+    
+        
+            <div class="row">
+    <div class="col-sm-12">
+        <blockquote class="notes">
+            <p>
+                <a href="http://itsbarakyo.com/notes/2014/04/06/play-framework-parsing-json.html">
+                    Play Framework: Parsing Arrays in JSON Requests
+                </a>
+            </p>
+            <small>06 Apr 2014</small>
+        </blockquote>
+        <p><h2>tl;dr</h2>
+
+<p>I suggest using <code>ObjectMapper</code> found in the <code>com.fasterxml.jackson.databind.ObjectMapper</code></p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="n">ObjectMapper</span> <span class="n">mapper</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">ObjectMapper</span><span class="o">();</span>
+    <span class="k">try</span> <span class="o">{</span>
+        <span class="n">JsonNode</span> <span class="n">root</span> <span class="o">=</span> <span class="n">request</span><span class="o">().</span><span class="na">body</span><span class="o">().</span><span class="na">asJson</span><span class="o">();</span>
+        <span class="n">JsonNode</span> <span class="n">jsonPhoneNumbers</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;phoneNumbers&quot;</span><span class="o">);</span>
+        <span class="k">for</span><span class="o">(</span><span class="n">JsonNode</span> <span class="n">phoneNumberString</span> <span class="o">:</span> <span class="n">jsonPhoneNumbers</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">String</span> <span class="n">phoneNumber</span> <span class="o">=</span> <span class="n">phoneNumberString</span><span class="o">.</span><span class="na">asText</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="k">catch</span> <span class="o">(</span><span class="n">NullPointerException</span> <span class="n">npe</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// No valid phone numbers were provided</span>
+    <span class="o">}</span></code></pre></div>
+
+<h2>Using ObjectMapper</h2>
+
+<p>For parsing arrays in JSON requests, I suggest using the <code>ObjectMapper</code>. Assuming you have a request that looks like:</p>
+
+<div class="highlight"><pre><code class="language-json" data-lang="json"><span class="p">{</span>
+        <span class="err">phoneNumbers:</span> <span class="err">[</span>
+            <span class="err">&#39;555-555-5555&#39;,</span>
+            <span class="err">&#39;555-555-5556&#39;,</span>
+            <span class="err">&#39;555-555-5557&#39;</span>
+        <span class="err">]</span>
+    <span class="p">}</span></code></pre></div>
+
+<p>We can easily access the phone number values by using <code>ObjectMapper</code> class. The first thing that you&#39;d want to do is instantiate an instance of this class, which is pretty straight forward.</p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="n">ObjectMapper</span> <span class="n">mapper</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">ObjectMapper</span><span class="o">();</span></code></pre></div>
+
+<p>From there, we want a JSON version of our request, the Play framework allows you to easily do so by chaining the <code>asJson()</code> method to the <code>request().body()</code> functions.</p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="n">JsonNode</span> <span class="n">root</span> <span class="o">=</span> <span class="n">request</span><span class="o">().</span><span class="na">body</span><span class="o">().</span><span class="na">asJson</span><span class="o">();</span></code></pre></div>
+
+<p>Using the <code>get()</code> function on our <code>root</code> object and providing the correct key, we can easily get our phoneNumbers as a JsonNode, which is also iterable. By iterating through each of the JsonNode objects, we can just return the value for the corresponding phone number as a <code>String</code> by using the <code>asText()</code> method.</p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="n">JsonNode</span> <span class="n">jsonPhoneNumbers</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;phoneNumbers&quot;</span><span class="o">);</span>
+    <span class="k">for</span><span class="o">(</span><span class="n">JsonNode</span> <span class="n">phoneNumberString</span> <span class="o">:</span> <span class="n">jsonPhoneNumbers</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">String</span> <span class="n">phoneNumber</span> <span class="o">=</span> <span class="n">phoneNumberString</span><span class="o">.</span><span class="na">asText</span><span class="o">();</span>
+    <span class="o">}</span></code></pre></div>
+
+<p>Since there is a possibility that the request could be empty (null), I suggest wrapping the request processing in a try-catch block. If a request is null or the specified key was not included in the request (in this example it would be <code>phoneNumbers</code>) then we can use the <code>catch</code> portion of the block to easily return a bad request.</p>
+
+<p>Put this all together looks like:</p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="kn">import</span> <span class="nn">com.fasterxml.jackson.databind.JsonNode</span><span class="o">;</span>
+    <span class="kn">import</span> <span class="nn">com.fasterxml.jackson.databind.ObjectMapper</span><span class="o">;</span>
+    <span class="kn">import</span> <span class="nn">com.fasterxml.jackson.databind.node.ObjectNode</span><span class="o">;</span>
+    <span class="kn">import</span> <span class="nn">play.libs.Json</span><span class="o">;</span>
+
+    <span class="n">ObjectMapper</span> <span class="n">mapper</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">ObjectMapper</span><span class="o">();</span>
+    <span class="n">ObjectNode</span> <span class="n">response</span> <span class="o">=</span> <span class="n">Json</span><span class="o">.</span><span class="na">newObject</span><span class="o">();</span>
+    <span class="k">try</span> <span class="o">{</span>
+        <span class="n">JsonNode</span> <span class="n">root</span> <span class="o">=</span> <span class="n">request</span><span class="o">().</span><span class="na">body</span><span class="o">().</span><span class="na">asJson</span><span class="o">();</span>
+        <span class="n">JsonNode</span> <span class="n">jsonPhoneNumbers</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;phoneNumbers&quot;</span><span class="o">);</span>
+        <span class="k">for</span><span class="o">(</span><span class="n">JsonNode</span> <span class="n">phoneNumberString</span> <span class="o">:</span> <span class="n">jsonPhoneNumbers</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">String</span> <span class="n">phoneNumber</span> <span class="o">=</span> <span class="n">phoneNumberString</span><span class="o">.</span><span class="na">asText</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="k">catch</span> <span class="o">(</span><span class="n">NullPointerException</span> <span class="n">npe</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// No valid phone numbers were provided</span>
+        <span class="n">response</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;status&quot;</span><span class="o">,</span> <span class="mi">400</span><span class="o">);</span>
+        <span class="n">response</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;message&quot;</span><span class="o">,</span> <span class="s">&quot;No phone numbers were provided&quot;</span><span class="o">);</span>
+        <span class="k">return</span> <span class="nf">badRequest</span><span class="o">(</span><span class="n">response</span><span class="o">);</span>
+    <span class="o">}</span></code></pre></div>
+</p>
+        <hr />
+    </div>
+</div>
+        
+    
+        
+    
+        
+            <div class="row">
+    <div class="col-sm-12">
+        <blockquote class="notes">
+            <p>
+                <a href="http://itsbarakyo.com/notes/2013/11/24/more-tdd-and-recursion-practice.html">
+                    More TDD and Recursion Practice
+                </a>
+            </p>
+            <small>24 Nov 2013</small>
+        </blockquote>
+        <p><p>It seems that Javascript challenges are more frequent at work. Thursday afternoon when we got back from lunch, my coworker was testing himself in the <a href="http://toys.usvsth3m.com/javascript-under-pressure/">You Can&#39;t Javascript Under Pressure</a> challenges. As great coworkers, we (by that I mean, me) decided to help out and put more pressure on our fellow coworker, without even being asked to! One of the challenges that came up during the test was a function <code>ArraySum()</code> which accepts a list (array) of values and you must total all the integers within the array. The array could contain strings, numbers, booleans, lists of strings, numbers, booleans, etc. Regardless of the input, you must total all the integers within the array. After seeing that challenge (and helping with the correct answer), I thought it might be good practice for another blog post.</p>
+
+<h3>Practice makes Perfect</h3>
+
+<p>Before jumping into more testing and programming, I want to stop and think about my methodology. While re-reading <a href="http://chimera.labs.oreilly.com/books/1234000000754/ch03.html">Chapter 3</a> of <a href="http://chimera.labs.oreilly.com/books/1234000000754/index.html">Test-Driven Web Development with Python</a> on Friday with a coworker, I realized that almost every line of code that was written in the chapter to satisfy the test, had a test case as a reason to write that code. After seeing this and thinking about my previous blog post, I realized I didn&#39;t follow the TDD methodology as closely as I <del>could</del>should have. According to the author, Harry Percival, TDD is a discipline, it even says so in chapter 4.</p>
+
+<blockquote>
+<p>TDD is a discipline, and that means it&#39;s not something that comes naturally; because many of the payoffs aren&#39;t immediate but only come in the longer term, you have to force yourself to do it in the moment.</p>
+</blockquote>
+
+<p>To cut myself some slack, TDD is something you have to practice. Yes, I&#39;m talking about <a href="http://www.youtube.com/watch?v=eGDBR2L5kzI">practice</a>. I&#39;m sure there are a bunch of young grasshoper learning quotes I could state right now, but lets get on to testing.</p>
+
+<h3>Stricter Test Cases</h3>
+
+<p>Last time we started by importing our function and writing a basic test case to test the return type. Let&#39;s do that again.</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">unittest</span>
+<span class="kn">from</span> <span class="nn">arraysum</span> <span class="kn">import</span> <span class="n">ArraySum</span>
+
+<span class="k">class</span> <span class="nc">ArraySumTests</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">test_for_int</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">ArraySum</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">,</span> <span class="s">&quot;Result is not integer&quot;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span></code></pre></div>
+
+<p>Looks good to me, lets run it!</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+<span class="n">File</span> <span class="s">&quot;tests.py&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">2</span><span class="p">,</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
+  <span class="kn">from</span> <span class="nn">arraysum</span> <span class="kn">import</span> <span class="n">ArraySum</span>
+  <span class="ne">ImportError</span><span class="p">:</span> <span class="n">No</span> <span class="n">module</span> <span class="n">named</span> <span class="n">arraysum</span></code></pre></div>
+
+<p>Our first error! Lets correct it, but remember, minimal amount of code! In fact, we won&#39;t right any code at all.</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">caster:arraysum/ <span class="nv">$ </span>touch arraysum.py</code></pre></div>
+ 
+
+<p>Let&#39;s re-run our test.</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+<span class="n">File</span> <span class="s">&quot;tests.py&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">2</span><span class="p">,</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
+  <span class="kn">from</span> <span class="nn">arraysum</span> <span class="kn">import</span> <span class="n">ArraySum</span>
+  <span class="ne">ImportError</span><span class="p">:</span> <span class="n">cannot</span> <span class="kn">import</span> <span class="nn">name</span> <span class="nn">ArraySum</span></code></pre></div>
+
+<p>Yay new error! This time it can&#39;t find our function, <code>ArraySum</code>, lets (minimally) create that in our new <code>arraysum.py</code> file.</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">ArraySum</span><span class="p">(</span><span class="n">int_list</span><span class="p">):</span>
+    <span class="k">pass</span></code></pre></div>
+
+<p>Okay, let&#39;s see what we get now.</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">F</span>
+<span class="o">======================================================================</span>
+<span class="n">FAIL</span><span class="p">:</span> <span class="n">test_for_int</span> <span class="p">(</span><span class="n">__main__</span><span class="o">.</span><span class="n">ArraySumTests</span><span class="p">)</span>
+<span class="o">----------------------------------------------------------------------</span>
+<span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+  <span class="n">File</span> <span class="s">&quot;tests.py&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">10</span><span class="p">,</span> <span class="ow">in</span> <span class="n">test_for_int</span>
+  <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">,</span> <span class="s">&quot;Result is not integer&quot;</span><span class="p">)</span>
+  <span class="ne">AssertionError</span><span class="p">:</span> <span class="n">Result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">integer</span>
+
+<span class="o">----------------------------------------------------------------------</span>
+<span class="n">Ran</span> <span class="mi">1</span> <span class="n">test</span> <span class="ow">in</span> <span class="mf">0.000</span><span class="n">s</span>
+
+<span class="n">FAILED</span> <span class="p">(</span><span class="n">failures</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></code></pre></div>
+
+<p><del>More</del>MOAR errors!! This time our test is failing because we&#39;re not returning an integer. Let&#39;s fix that by modifying our return statement.</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">ArraySum</span><span class="p">(</span><span class="n">int_list</span><span class="p">):</span>
+    <span class="k">return</span> <span class="mi">0</span></code></pre></div>
+
+<p>Alright, lets re-run our test.</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="o">.</span>
+<span class="o">----------------------------------------------------------------------</span>
+<span class="n">Ran</span> <span class="mi">1</span> <span class="n">test</span> <span class="ow">in</span> <span class="mf">0.000</span><span class="n">s</span>
+
+<span class="n">OK</span></code></pre></div>
+
+<p>Woohoo! Our first test passed. According to TDD, we can now write some more tests. Let&#39;s make this one a little more interesting.</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">unittest</span>
+<span class="kn">from</span> <span class="nn">arraysum</span> <span class="kn">import</span> <span class="n">ArraySum</span>
+
+<span class="k">class</span> <span class="nc">ArraySumTests</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">test_for_int</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">ArraySum</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">,</span> <span class="s">&quot;Result is not integer&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">test_flat_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">ArraySum</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">result</span> <span class="o">==</span> <span class="mi">15</span><span class="p">,</span> <span class="s">&quot;Incorrect sum&quot;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span></code></pre></div>
+
+<p>We&#39;ve now added a new test, <code>test_flat_list</code> to test a simple list of integers and ensure the sum is correct. Back to running tests...</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">F</span><span class="o">.</span>
+<span class="o">======================================================================</span>
+<span class="n">FAIL</span><span class="p">:</span> <span class="n">test_flat_list</span> <span class="p">(</span><span class="n">__main__</span><span class="o">.</span><span class="n">ArraySumTests</span><span class="p">)</span>
+<span class="o">----------------------------------------------------------------------</span>
+<span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+<span class="n">File</span> <span class="s">&quot;tests.py&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">14</span><span class="p">,</span> <span class="ow">in</span> <span class="n">test_flat_list</span>
+  <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">result</span> <span class="o">==</span> <span class="mi">15</span><span class="p">,</span> <span class="s">&quot;Incorrect sum&quot;</span><span class="p">)</span>
+  <span class="ne">AssertionError</span><span class="p">:</span> <span class="n">Incorrect</span> <span class="nb">sum</span>
+
+<span class="o">----------------------------------------------------------------------</span>
+<span class="n">Ran</span> <span class="mi">2</span> <span class="n">tests</span> <span class="ow">in</span> <span class="mf">0.000</span><span class="n">s</span>
+
+<span class="n">FAILED</span> <span class="p">(</span><span class="n">failures</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></code></pre></div>
+
+<p>The obvious problem here is that our function is returning 0 and not doing any sort of summation. According to TDD, we want to write the minimal amount of code, Python, being the beautiful language that it is, provides us with a simple <code>sum</code> function which operates on iterables. Allowing us to very easily pass our <code>test_with_flat_list</code> test.</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">ArraySum</span><span class="p">(</span><span class="n">int_list</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">int_list</span><span class="p">)</span></code></pre></div>
+
+<p>Running our test again will show that we were able to successfully pass it.</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="o">..</span>
+<span class="o">----------------------------------------------------------------------</span>
+<span class="n">Ran</span> <span class="mi">2</span> <span class="n">tests</span> <span class="ow">in</span> <span class="mf">0.000</span><span class="n">s</span>
+
+<span class="n">OK</span></code></pre></div>
+
+<p>We can continue writing more test cases, so lets make it a little more interesting. We&#39;ll introduce some non-integer values into the list, which will create errors for our <code>sum</code> function in a test case called <code>test_complex_list</code>.</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">unittest</span>
+<span class="kn">from</span> <span class="nn">arraysum</span> <span class="kn">import</span> <span class="n">ArraySum</span>
+
+<span class="k">class</span> <span class="nc">ArraySumTests</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">test_for_int</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">ArraySum</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">,</span> <span class="s">&quot;Result is not integer&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">test_flat_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">ArraySum</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">result</span> <span class="o">==</span> <span class="mi">15</span><span class="p">,</span> <span class="s">&quot;Incorrect sum&quot;</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">test_complex_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">ArraySum</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="s">&quot;hello&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">result</span> <span class="o">==</span> <span class="mi">6</span><span class="p">,</span> <span class="s">&quot;Incorrect sum&quot;</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span></code></pre></div>
+
+<p>Running our tests, returns the results:</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">E</span><span class="o">..</span>
+<span class="o">======================================================================</span>
+<span class="n">ERROR</span><span class="p">:</span> <span class="n">test_complex_list</span> <span class="p">(</span><span class="n">__main__</span><span class="o">.</span><span class="n">ArraySumTests</span><span class="p">)</span>
+<span class="o">----------------------------------------------------------------------</span>
+<span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+  <span class="n">File</span> <span class="s">&quot;tests.py&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">17</span><span class="p">,</span> <span class="ow">in</span> <span class="n">test_complex_list</span>
+  <span class="n">result</span> <span class="o">=</span> <span class="n">ArraySum</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="s">&quot;hello&quot;</span><span class="p">])</span>
+    <span class="n">File</span> <span class="s">&quot;/home/caster/Development/arraysum/arraysum.py&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">2</span><span class="p">,</span> <span class="ow">in</span> <span class="n">ArraySum</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">int_list</span><span class="p">)</span>
+        <span class="ne">TypeError</span><span class="p">:</span> <span class="n">unsupported</span> <span class="n">operand</span> <span class="nb">type</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="o">+</span><span class="p">:</span> <span class="s">&#39;int&#39;</span> <span class="ow">and</span> <span class="s">&#39;str&#39;</span>
+
+<span class="o">----------------------------------------------------------------------</span>
+<span class="n">Ran</span> <span class="mi">3</span> <span class="n">tests</span> <span class="ow">in</span> <span class="mf">0.000</span><span class="n">s</span>
+
+<span class="n">FAILED</span> <span class="p">(</span><span class="n">errors</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></code></pre></div>
+
+<p>Just as we expected! Let&#39;s make some corrections to our <code>ArraySum</code> function.</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">ArraySum</span><span class="p">(</span><span class="n">int_list</span><span class="p">):</span>
+    <span class="nb">sum</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">int_list</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
+            <span class="nb">sum</span> <span class="o">+=</span> <span class="n">x</span>
+    <span class="k">return</span> <span class="nb">sum</span></code></pre></div>
+
+<p>After making our fix, we&#39;ll re-run our test and...</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="o">...</span>
+<span class="o">----------------------------------------------------------------------</span>
+<span class="n">Ran</span> <span class="mi">3</span> <span class="n">tests</span> <span class="ow">in</span> <span class="mf">0.000</span><span class="n">s</span>
+
+<span class="n">OK</span></code></pre></div>
+
+<p>Looks good! Once again, passed test cases means we can write more tests, so lets give it a go one last time. We&#39;ll create a new test case, <code>test_complex_nested_list</code>, where we&#39;ll introduce a nested list into our previous complex list. A nested list within our function also brings in the sense of recursion! We&#39;ll want to take in account what we have, where we want to go, and if we&#39;ve done something like this before (which we have). Currently we&#39;re iterating through all the values and if they&#39;re integers we&#39;ll add them to our <code>sum</code> variable. We&#39;re throwing away that is anything but an <code>int</code>. We know this is wrong though since the function must also include the values within nested lists, hence the embarrassingly recursive algorithm.</p>
+
+<p>We know that we&#39;re going to have to iterate through the values in our list, so we understand that, but lets look at our cases:</p>
+
+<ul>
+<li>Value is an <code>int</code>: Add to sum</li>
+<li>Value is a <code>list</code>: Add the total of the list to sum</li>
+<li>Value is neither: Ignore</li>
+</ul>
+
+<p>Now that we have an idea of what we want to do, lets write our last test case.</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">unittest</span>
+<span class="kn">from</span> <span class="nn">arraysum</span> <span class="kn">import</span> <span class="n">ArraySum</span>
+
+<span class="k">class</span> <span class="nc">ArraySumTests</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">test_for_int</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">ArraySum</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">,</span> <span class="s">&quot;Result is not integer&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">test_flat_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">ArraySum</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">result</span> <span class="o">==</span> <span class="mi">15</span><span class="p">,</span> <span class="s">&quot;Incorrect sum&quot;</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">test_complex_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">ArraySum</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="s">&quot;hello&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">result</span> <span class="o">==</span> <span class="mi">6</span><span class="p">,</span> <span class="s">&quot;Incorrect sum&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">test_complex_nested_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">ArraySum</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="s">&quot;hello&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">]])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">result</span> <span class="o">==</span> <span class="mi">15</span><span class="p">,</span> <span class="s">&quot;Incorrect sum&quot;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span></code></pre></div>
+
+<p>Before we make any changes to <code>ArraySum</code>, we have to run our test.</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="o">.</span><span class="n">F</span><span class="o">..</span>
+<span class="o">======================================================================</span>
+<span class="n">FAIL</span><span class="p">:</span> <span class="n">test_complex_nested_list</span> <span class="p">(</span><span class="n">__main__</span><span class="o">.</span><span class="n">ArraySumTests</span><span class="p">)</span>
+<span class="o">----------------------------------------------------------------------</span>
+<span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+  <span class="n">File</span> <span class="s">&quot;tests.py&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">22</span><span class="p">,</span> <span class="ow">in</span> <span class="n">test_complex_nested_list</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">result</span> <span class="o">==</span> <span class="mi">15</span><span class="p">,</span> <span class="s">&quot;Incorrect sum&quot;</span><span class="p">)</span>
+      <span class="ne">AssertionError</span><span class="p">:</span> <span class="n">Incorrect</span> <span class="nb">sum</span>
+
+<span class="o">----------------------------------------------------------------------</span>
+<span class="n">Ran</span> <span class="mi">4</span> <span class="n">tests</span> <span class="ow">in</span> <span class="mf">0.000</span><span class="n">s</span>
+
+<span class="n">FAILED</span> <span class="p">(</span><span class="n">failures</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></code></pre></div>
+
+<p>Now that we have a failed test, we are given the okay by the testing goat to modify our code. Let&#39;s add our recursive call, so our function now looks like:</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">ArraySum</span><span class="p">(</span><span class="n">int_list</span><span class="p">):</span>
+    <span class="nb">sum</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">int_list</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
+            <span class="nb">sum</span> <span class="o">+=</span> <span class="n">x</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="nb">sum</span> <span class="o">+=</span> <span class="n">ArraySum</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">sum</span></code></pre></div>
+
+<p>Re-running our final test...</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="o">....</span>
+<span class="o">----------------------------------------------------------------------</span>
+<span class="n">Ran</span> <span class="mi">4</span> <span class="n">tests</span> <span class="ow">in</span> <span class="mf">0.000</span><span class="n">s</span>
+
+<span class="n">OK</span></code></pre></div>
+
+<p>Ahhhhh :)</p>
+</p>
+        <hr />
+    </div>
+</div>
+        
+    
+        
+            <div class="row">
+    <div class="col-sm-12">
+        <blockquote class="notes">
+            <p>
+                <a href="http://itsbarakyo.com/notes/2013/11/17/flatten_dictionary_challenge.html">
+                    Code Challenge: Dictionary Flatten
+                </a>
+            </p>
+            <small>17 Nov 2013</small>
+        </blockquote>
+        <p><p>While browsing <a href="http://www.reddit.com/r/javascript">/r/javascript</a> Thursday night, I came across a post regrading a <a href="http://www.reddit.com/r/javascript/comments/1qn7bo/mildly_interesting_question_i_got_while/">mildly interesting interview question</a> which had to do with flattening a Javascript object to a URI.</p>
+
+<p>Two things immediately jumped into my mind:</p>
+
+<ol>
+<li>I have to show one of my coworkers.</li>
+<li>This would make a &quot;midly interesting&quot; Python challenge!</li>
+</ol>
+
+<p>Friday morning, the first thing I did when I got into work was write the challenge on our white board and my solution in Python. Funny enough, once I came back from lunch, my coworker was writing his Javascript solution next to my Python one. It turns out that he saw the challenge Thursday night and even posted his solution to the thread.</p>
+
+<p>I figured, I&#39;d code up my solution and give it a shot. Both for recursive practice and writing test cases. So to start with some test driven development (TDD), I began by writing a simple test case.</p>
+
+<p>First we&#39;ll define a class for our test cases:</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">unittest</span>
+<span class="k">class</span> <span class="nc">FlattenTests</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span></code></pre></div>
+
+<p>From there, we&#39;ll add a simple <code>setUp</code> method which creates a dictionary to use for testing:</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">unittest</span>
+
+<span class="k">class</span> <span class="nc">FlattenTests</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">example</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s">&quot;foo&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s">&quot;bar&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s">&quot;team&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+                        <span class="s">&quot;company&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s">&quot;Bill&quot;</span><span class="p">,</span> <span class="s">&quot;Ted&quot;</span><span class="p">]</span>
+                        <span class="p">}</span>
+                    <span class="p">}</span>
+                <span class="p">}</span></code></pre></div>
+
+<p>Now lets define a test case!</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">unittest</span>
+
+<span class="k">class</span> <span class="nc">FlattenTests</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">example</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s">&quot;foo&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s">&quot;bar&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s">&quot;team&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+                        <span class="s">&quot;company&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s">&quot;Bill&quot;</span><span class="p">,</span> <span class="s">&quot;Ted&quot;</span><span class="p">]</span>
+                        <span class="p">}</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">test_for_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">flatten</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">example</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">dict</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span></code></pre></div>
+
+<p>The test case we&#39;ve defined, <code>test_for_dict</code>, just determines if the return type of the <code>flatten</code> method (which we haven&#39;t written yet) is of type dictionary. Lets run our test case and see what we get!</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">ERROR: test_for_dict <span class="o">(</span>__main__.FlattenTests<span class="o">)</span>
+----------------------------------------------------------------------
+Traceback <span class="o">(</span>most recent call last<span class="o">)</span>:
+File <span class="s2">&quot;tests.py&quot;</span>, line 16, in test_for_dict
+<span class="nv">d</span> <span class="o">=</span> flatten<span class="o">(</span>self.example, <span class="s2">&quot;&quot;</span><span class="o">)</span>
+NameError: global name <span class="s1">&#39;flatten&#39;</span> is not defined
+----------------------------------------------------------------------</code></pre></div>
+
+<p>Ahh what was that!? According to my understanding of TDD, this is a good thing! We can start writing code now. Lets define a new file <code>flatten.py</code> and create a flatten function that accepts a dictionary and string. Remember, according to TDD, we must right the most minimal amount of code that will pass our test.</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">flatten</span><span class="p">(</span><span class="n">d_flat</span><span class="p">,</span> <span class="n">key_string</span><span class="p">):</span>
+    <span class="k">pass</span></code></pre></div>
+
+<p>Well that was simple enough, lets run our test.</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">======================================================================</span>
+FAIL: test_for_dict <span class="o">(</span>__main__.FlattenTests<span class="o">)</span>
+----------------------------------------------------------------------
+Traceback <span class="o">(</span>most recent call last<span class="o">)</span>:
+File <span class="s2">&quot;tests.py&quot;</span>, line 17, in test_for_dict
+self.assertTrue<span class="o">(</span><span class="nb">type</span><span class="o">(</span>d<span class="o">)</span> is dict<span class="o">)</span>
+AssertionError: False is not <span class="nb">true</span>
+----------------------------------------------------------------------</code></pre></div>
+
+<p>Hmm, seems like we didn&#39;t write enough code! Lets go back and update our <code>flatten</code> function.</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">flatten</span><span class="p">(</span><span class="n">d_flat</span><span class="p">,</span> <span class="n">key_string</span><span class="p">):</span>
+   <span class="k">return</span> <span class="p">{}</span></code></pre></div>
+
+<p>Now that we&#39;ve updated our code, lets run our test again.</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">caster:flatten/ <span class="nv">$ </span>python tests.py
+.
+----------------------------------------------------------------------
+Ran <span class="m">1</span> <span class="nb">test </span>in 0.000s
+
+OK</code></pre></div>
+
+<p>Looks good to me! Now that one of our tests has passed, we can now write another (more interesting) test! I&#39;m not very creative at writing these incremental tests, so lets just get to it.</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">unittest</span>
+<span class="kn">from</span> <span class="nn">flatten</span> <span class="kn">import</span> <span class="n">flatten</span>
+
+<span class="k">class</span> <span class="nc">FlattenTests</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">example</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s">&quot;foo&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s">&quot;bar&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s">&quot;team&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+                        <span class="s">&quot;company&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s">&quot;Bill&quot;</span><span class="p">,</span> <span class="s">&quot;Ted&quot;</span><span class="p">]</span>
+                        <span class="p">}</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">test_for_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">flatten</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">example</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">dict</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">test_case_one</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">flatten</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">example</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;foo/bar/team&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;foo/bar/company&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s">&quot;Bill&quot;</span><span class="p">,</span> <span class="s">&quot;Ted&quot;</span><span class="p">])</span> 
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">unittest</span></code></pre></div>
+
+<p>We&#39;ve defined a new test case, <code>test_case_one</code>, (like I said, I&#39;m not very creative), that&#39;ll run our <code>flatten</code> function and determine if we&#39;ve received the correct output. Lets try running our test case now (and cross our fingers) to see if it fails.</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">caster:flatten/ <span class="nv">$ </span>python tests.py
+E.
+<span class="o">======================================================================</span>
+ERROR: test_case_one <span class="o">(</span>__main__.FlattenTests<span class="o">)</span>
+----------------------------------------------------------------------
+Traceback <span class="o">(</span>most recent call last<span class="o">)</span>:
+File <span class="s2">&quot;tests.py&quot;</span>, line 21, in test_case_one
+self.assertTrue<span class="o">(</span>d<span class="o">[</span><span class="s2">&quot;foo/bar/team&quot;</span><span class="o">])</span>
+KeyError: <span class="s1">&#39;foo/bar/team&#39;</span>
+
+----------------------------------------------------------------------
+Ran <span class="m">2</span> tests in 0.000s
+
+FAILED <span class="o">(</span><span class="nv">errors</span><span class="o">=</span>1<span class="o">)</span></code></pre></div>
+
+<p>Awesome! More good news! :) Before we jump into writing our function, lets think about what we want the function to do.</p>
+
+<ul>
+<li>First we&#39;ll need to iterate through all the key/value pairs in the dictionary passed to the function.</li>
+<li>We&#39;ll then need to determine if the value for the key we&#39;ve iterated to is a dictionary or not.
+
+<ul>
+<li>If the value is a dictionary, we&#39;ll want to recursively call <code>flatten</code> and append our key to <code>key_string</code> so that we&#39;re keeping track of the key we want to eventually use.</li>
+</ul></li>
+<li>The easy (or base) case, if our value is <strong>NOT</strong> a dictionary, simply add it to the dictionary with it&#39;s key append to <code>key_string</code></li>
+<li>Finally, once we&#39;ve iterated through all the values, return the dictionary.</li>
+</ul>
+
+<p>When we put it like that, it sounds easy! (Or so I hope...)</p>
+
+<p>Lets take care of iterating through the dictionary, that sounds easy enough:</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">flatten</span><span class="p">(</span><span class="n">d_flat</span><span class="p">,</span> <span class="n">key_string</span><span class="p">):</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">d_flat</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">pass</span>
+    <span class="k">return</span> <span class="n">d</span></code></pre></div>
+
+<p>Simple enough, we&#39;ve declared an empty dictionary <code>d</code> and started iterating through the items in the dictionary. Lets take a look at our first case, if the value for a key is a dictionary:</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">flatten</span><span class="p">(</span><span class="n">d_flat</span><span class="p">,</span> <span class="n">key_string</span><span class="p">):</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">d_flat</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span>
+    <span class="k">return</span> <span class="n">d</span></code></pre></div>
+
+<p>Okay we&#39;ve added our if statement, now if it&#39;s true, we&#39;ll have to recursively call our function. Before we jump to make the recursive call, we need to ensure we&#39;re keeping track of our <code>key_string</code> value. To do so, we&#39;ll pass <code>key_string</code> with the current key value, <code>k</code>. We&#39;ll recursively call <code>flatten</code> with the inner dictionary stored in <code>v</code>.</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">flatten</span><span class="p">(</span><span class="n">d_flat</span><span class="p">,</span> <span class="n">key_string</span><span class="p">):</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">d_flat</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">flatten</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">key_string</span> <span class="o">+</span> <span class="n">k</span> <span class="o">+</span> <span class="s">&quot;/&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span>
+    <span class="k">return</span> <span class="n">d</span></code></pre></div>
+
+<p>Almost there! We now need to worry about our base case, so let&#39;s take care of that! Recall that we said if our value is not of type dictionary, we simple append it to our dictionary that we declared, <code>d</code>. Again, we have to keep in mind that we want to assign the correct key for our value, which would be our current <code>key_string</code> concatenated with the current key we&#39;re looking at, <code>k</code>. Once we create the right key, we&#39;ll just assign it to our value, <code>v</code> and return our dictionary, <code>d</code>.</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">flatten</span><span class="p">(</span><span class="n">d_flat</span><span class="p">,</span> <span class="n">key_string</span><span class="p">):</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">d_flat</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">flatten</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">key_string</span> <span class="o">+</span> <span class="n">k</span> <span class="o">+</span> <span class="s">&quot;/&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="n">key_string</span> <span class="o">+</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+    <span class="k">return</span> <span class="n">d</span></code></pre></div>
+
+<p>So good so far, lets run our tests!</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">caster:flatten/ <span class="nv">$ </span>python tests.py
+..
+----------------------------------------------------------------------
+Ran <span class="m">2</span> tests in 0.000s
+
+OK</code></pre></div>
+
+<p>Perfect...or so we think. There&#39;s actually a problem in our algorithm, which we can expose by making our testing data little more robust. Lets update our <code>setUp</code> and our <code>test_case_one</code> functions so they look like this:</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">unittest</span>
+<span class="kn">from</span> <span class="nn">flatten</span> <span class="kn">import</span> <span class="n">flatten</span>
+
+<span class="k">class</span> <span class="nc">FlattenTests</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">example</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s">&quot;foo&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s">&quot;bar&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s">&quot;team&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+                        <span class="s">&quot;company&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s">&quot;Bill&quot;</span><span class="p">,</span> <span class="s">&quot;Ted&quot;</span><span class="p">]</span>
+                        <span class="p">}</span>
+                    <span class="p">},</span>
+                    <span class="s">&quot;fizz&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s">&quot;blue&quot;</span><span class="p">:</span> <span class="s">&quot;red&quot;</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">test_for_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">flatten</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">example</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">dict</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">test_case_one</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">flatten</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">example</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;foo/bar/team&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;foo/bar/company&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s">&quot;Bill&quot;</span><span class="p">,</span> <span class="s">&quot;Ted&quot;</span><span class="p">])</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;foo/bar/fiz/blue&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="s">&quot;red&quot;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span></code></pre></div>
+
+<p>We&#39;ve added another key that points to another dictionary. Nothing unusual or out of the oridinary. We&#39;ve also added a new assertion to ensure that the key <code>foo/bar/fiz/blue</code> contains the string <code>red</code>. Lets run our test case and see what happens.</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">caster:flatten/ <span class="nv">$ </span>python tests.py
+E.
+<span class="o">======================================================================</span>
+ERROR: test_case_one <span class="o">(</span>__main__.FlattenTests<span class="o">)</span>
+----------------------------------------------------------------------
+Traceback <span class="o">(</span>most recent call last<span class="o">)</span>:
+File <span class="s2">&quot;tests.py&quot;</span>, line 21, in test_case_one
+self.assertTrue<span class="o">(</span>d<span class="o">[</span><span class="s2">&quot;foo/bar/team&quot;</span><span class="o">])</span>
+KeyError: <span class="s1">&#39;foo/bar/team&#39;</span>
+
+----------------------------------------------------------------------
+Ran <span class="m">2</span> tests in 0.000s
+
+FAILED <span class="o">(</span><span class="nv">errors</span><span class="o">=</span>1<span class="o">)</span></code></pre></div>
+
+<p>Failed! What&#39;s going on here? If you take a look at our algorithm, we&#39;re not <strong>updating</strong> our dictionary when we return from a recursive call, we&#39;re actually <strong>overwriting</strong> it. Let&#39;s make a small change and ensure we&#39;re updating our dictionary and see what happens.</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">flatten</span><span class="p">(</span><span class="n">d_flat</span><span class="p">,</span> <span class="n">key_string</span><span class="p">):</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">d_flat</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">flatten</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">key_string</span> <span class="o">+</span> <span class="n">k</span> <span class="o">+</span> <span class="s">&quot;/&quot;</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="n">key_string</span> <span class="o">+</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+    <span class="k">return</span> <span class="n">d</span></code></pre></div>
+
+<p>Now lets run our tests.</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">caster:flatten/ <span class="nv">$ </span>python tests.py
+..
+----------------------------------------------------------------------
+Ran <span class="m">2</span> tests in 0.000s
+
+OK</code></pre></div>
+
+<p>All is well and now our function works as expected!</p>
+</p>
+        <hr />
+    </div>
+</div>
+        
+    
+        
+    
+        
+            <div class="row">
+    <div class="col-sm-12">
+        <blockquote class="notes">
+            <p>
+                <a href="http://itsbarakyo.com/notes/2013/11/10/writing-test-cases-for-laravel.html">
+                    Writing Test Cases for Laravel
+                </a>
+            </p>
+            <small>10 Nov 2013</small>
+        </blockquote>
+        <p><p>Besides writing test cases just because &quot;everyone else is&quot;, we should be writing test cases since they&#39;ll help create a stronger trust in our code that our functions are doing what they should be doing.</p>
+
+<h3>Requirements</h3>
+
+<ul>
+<li>PHP</li>
+<li>PHPUnit (you will most likely need a global install) </li>
+<li>Test Cases (DUH)</li>
+</ul>
+
+<h3>Helpers</h3>
+
+<p>Helpers are a set of classes that we create to take care of common mundane tasks. For example, the User Helper for testing provides functions for returning a user with a specified role or easily create a new user with the specified role if one does not exist or the user requests one.</p>
+
+<p>Since we can define helpers for a number of things, we want to ensure that the helpers for our test case don&#39;t conflict with helpers that we use in other applications, for this we&#39;ll create our test helpers in the sub-namespace <code>Testing</code> within the <code>Helpers</code> name space.</p>
+
+<p>PHP Namespaces are defined as the first line after the <code>&lt;?php</code> opening. It <strong>MUST</strong> be the first line after the opening, or else PHP will throw an error.</p>
+
+<div class="highlight"><pre><code class="language-php" data-lang="php"><span class="cp">&lt;?php</span>
+
+<span class="k">namespace</span> <span class="nx">Helpers\Testing</span><span class="p">;</span></code></pre></div>
+
+<p>After defining the namespace, you will most likely want to include common exceptions that will be thrown when accessing models.</p>
+
+<div class="highlight"><pre><code class="language-php" data-lang="php"><span class="x">use Illuminate\Database\Eloquent\ModelNotFoundException;</span></code></pre></div>
+
+<p>From there, you&#39;re ready and free to define your helper class as you please. </p>
+
+<p><strong>PLEASE COMMENT FUNCTIONS</strong></p>
+
+<h3>Test Cases</h3>
+
+<p>To write test cases you must extend from the Laravel&#39;s base <code>TestCase</code> class. When writing test cases please follow certain conventions:</p>
+
+<ul>
+<li>The name of the file and the class for the test case should follow the naming convention ControllerFunctionTest
+
+<ul>
+<li>Ex: Writing test cases for the Index function for the User Controller: UserControllerIndexTest.php</li>
+</ul></li>
+</ul>
+
+<div class="highlight"><pre><code class="language-php" data-lang="php"><span class="cp">&lt;?php</span>
+<span class="k">class</span> <span class="nc">UserControllerIndexTest</span> <span class="k">extends</span> <span class="nx">TestCase</span> <span class="p">{</span>
+
+<span class="p">}</span></code></pre></div>
+
+<ul>
+<li>All functions that are test musted start with the word <strong>test</strong> (PHPUnit convention) or else PHPUnit will not find your function</li>
+<li>Functions should specify what role they&#39;re testing as, ex: <code>testIndexAsAdmin()</code></li>
+</ul>
+
+<h3>Tips for Writing Test Cases</h3>
+
+<h4>Calling Routes</h4>
+
+<p>We want to guarantee our that not only our functions are correct, but that our routes/API are calling the correct functions. If you can, please test routes rather than functions. You can call routes using the <code>$this-&gt;call()</code> function. More information for calling routes can be found in <a href="http://laravel.com/docs/testing#calling-routes-from-tests">Laravel&#39;s Documentation</a>.</p>
+
+<h4>Acting as a User</h4>
+
+<p>To act as a user, you can use the <code>$this-&gt;be()</code> function, which can also be found in <a href="http://laravel.com/docs/testing#helper-methods">Laravel&#39;s Documentation</a></p>
+
+<h4>Specifying Exceptons</h4>
+
+<p>An exception being throw can be a success if a user should not have access to certain functionality. Since our API immediately throws a InsufficientPermissionsException when a user doesn&#39;t have the right permissions, we can easily have our test cases catch this and mark them as a passed test. To specify that an exception should be thrown, you can define it in the PHPDocs comments like so:</p>
+
+<div class="highlight"><pre><code class="language-php" data-lang="php"><span class="cp">&lt;?php</span>
+    <span class="k">class</span> <span class="nc">UserControllerIndexTest</span> <span class="k">extends</span> <span class="nx">TestCase</span> <span class="p">{</span>
+        <span class="sd">/**</span>
+<span class="sd">         * Tests user index function as student, passes on thrown exception</span>
+<span class="sd">         * @expectedException InsufficientPermissionsException</span>
+<span class="sd">        */</span>
+        <span class="k">public</span> <span class="k">function</span> <span class="nf">testIndexAsStudent</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nv">$user</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">userHelper</span><span class="o">-&gt;</span><span class="na">getStudentUser</span><span class="p">();</span>
+            <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">be</span><span class="p">(</span><span class="nv">$user</span><span class="p">);</span>
+            <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">call</span><span class="p">(</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">base_route</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span></code></pre></div>
+
+<h4>Writing Functions</h4>
+
+<p><strong>Note:</strong> Only one test per function, so you cannot have a function return users with all roles and test them as one test case. Hence the need for the naming convention of what you&#39;re testing as what role.</p>
+
+<p>Test cases can become repetitive, to ease the amount of typing you can write a function (<em>GASP!</em>) which we can call in our <del>all</del> most  of our tests. </p>
+
+<h3>References</h3>
+
+<ul>
+<li><a href="http://laravel.com/docs/testing">Laravel Documentation on Testing</a></li>
+<li><a href="http://phpunit.de/manual/current/en/index.html">PHPUnit Documentation</a></li>
+</ul>
+</p>
+        <hr />
+    </div>
+</div>
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+</div>
+</body>
+</html>

@@ -1,0 +1,9 @@
+---
+---
+{% include header.html %}
+<div class="container" id="post-container">
+    {% for post in site.posts %}
+        {% include cat_post.html %}
+    {% endfor %}
+</div>
+{% include footer.html %}

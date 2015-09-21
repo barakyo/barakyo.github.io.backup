@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="http://itsbarakyo.com/css/bootstrap.css" rel="stylesheet">
+        <link href="http://itsbarakyo.com/css/syntax.css" rel="stylesheet">
+        <script type="text/javascript" src="http://itsbarakyo.com/js/jquery-1.10.2.min.js"></script>
+        <script type="text/javascript" src="http://itsbarakyo.com/js/collapse.js"></script>
+        <title>itsbarakyo | Code Challenge: Dictionary Flatten</title>
+    </head>
+    <body>
+        <div class="navbar navbar-inverse navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#mobile-links">
+                      <span class="sr-only">Toggle navigation</span>
+                      <span class="glyphicon glyphicon-chevron-down white"></span>
+                    </button>
+                    <h1>itsbarakyo</h1>
+                </div>
+            </div>
+            <div class="collapse navbar-collapse" id="mobile-links">
+                <ul class="nav navbar visible-xs">
+                    <li>
+                        <a href="http://itsbarakyo.com/" class="btn btn-success btn-lg btn-block">HOME</a>
+                    </li>
+                    <li>
+                        <a href="http://itsbarakyo.com/personal/" class="btn btn-info btn-lg btn-block">PERSONAL</a>
+                    </li>
+                    <li>
+                        <a href="http://itsbarakyo.com/likes/" class="btn btn-like btn-lg btn-block">LIKES</a>
+                    </li>
+                    <li>
+                        <a href="http://itsbarakyo.com/notes/" class="btn btn-warning btn-lg btn-block">NOTES</a>
+                    </li>
+                    <li>
+                        <a href="http://itsbarakyo.com/projects/" class="btn btn-danger btn-lg btn-block">PROJECTS</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="navbar navbar-fixed-top hidden-xs" id="navigation">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-12 hidden-xs">
+                        <div class="btn-toolbar">
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com" class="btn btn-success">HOME</a>
+                            </div>
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com/personal/" class="btn btn-info">PERSONAL</a>
+                            </div>
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com/likes/" class="btn btn-like">LIKES</a>
+                            </div>
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com/notes/" class="btn btn-warning">NOTES</a>
+                            </div>
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com/projects/" class="btn btn-danger">PROJECTS</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+<div class="container" id="post-container">
+    <div class="row">
+        <div class="col-sm-12">
+            <blockquote class="notes">
+                <p>
+                    <a href="http://itsbarakyo.com/notes/2013/11/17/flatten_dictionary_challenge">
+                        Code Challenge: Dictionary Flatten
+                    </a>
+                </p>
+                <small>17 Nov 2013</small>
+            </blockquote>
+            <p><p>While browsing <a href="http://www.reddit.com/r/javascript">/r/javascript</a> Thursday night, I came across a post regrading a <a href="http://www.reddit.com/r/javascript/comments/1qn7bo/mildly_interesting_question_i_got_while/">mildly interesting interview question</a> which had to do with flattening a Javascript object to a URI.</p>
+
+<p>Two things immediately jumped into my mind:</p>
+
+<ol>
+<li>I have to show one of my coworkers.</li>
+<li>This would make a &quot;midly interesting&quot; Python challenge!</li>
+</ol>
+
+<p>Friday morning, the first thing I did when I got into work was write the challenge on our white board and my solution in Python. Funny enough, once I came back from lunch, my coworker was writing his Javascript solution next to my Python one. It turns out that he saw the challenge Thursday night and even posted his solution to the thread.</p>
+
+<p>I figured, I&#39;d code up my solution and give it a shot. Both for recursive practice and writing test cases. So to start with some test driven development (TDD), I began by writing a simple test case.</p>
+
+<p>First we&#39;ll define a class for our test cases:</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">unittest</span>
+<span class="k">class</span> <span class="nc">FlattenTests</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span></code></pre></div>
+
+<p>From there, we&#39;ll add a simple <code>setUp</code> method which creates a dictionary to use for testing:</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">unittest</span>
+
+<span class="k">class</span> <span class="nc">FlattenTests</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">example</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s">&quot;foo&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s">&quot;bar&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s">&quot;team&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+                        <span class="s">&quot;company&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s">&quot;Bill&quot;</span><span class="p">,</span> <span class="s">&quot;Ted&quot;</span><span class="p">]</span>
+                        <span class="p">}</span>
+                    <span class="p">}</span>
+                <span class="p">}</span></code></pre></div>
+
+<p>Now lets define a test case!</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">unittest</span>
+
+<span class="k">class</span> <span class="nc">FlattenTests</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">example</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s">&quot;foo&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s">&quot;bar&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s">&quot;team&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+                        <span class="s">&quot;company&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s">&quot;Bill&quot;</span><span class="p">,</span> <span class="s">&quot;Ted&quot;</span><span class="p">]</span>
+                        <span class="p">}</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">test_for_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">flatten</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">example</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">dict</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span></code></pre></div>
+
+<p>The test case we&#39;ve defined, <code>test_for_dict</code>, just determines if the return type of the <code>flatten</code> method (which we haven&#39;t written yet) is of type dictionary. Lets run our test case and see what we get!</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">ERROR: test_for_dict <span class="o">(</span>__main__.FlattenTests<span class="o">)</span>
+----------------------------------------------------------------------
+Traceback <span class="o">(</span>most recent call last<span class="o">)</span>:
+File <span class="s2">&quot;tests.py&quot;</span>, line 16, in test_for_dict
+<span class="nv">d</span> <span class="o">=</span> flatten<span class="o">(</span>self.example, <span class="s2">&quot;&quot;</span><span class="o">)</span>
+NameError: global name <span class="s1">&#39;flatten&#39;</span> is not defined
+----------------------------------------------------------------------</code></pre></div>
+
+<p>Ahh what was that!? According to my understanding of TDD, this is a good thing! We can start writing code now. Lets define a new file <code>flatten.py</code> and create a flatten function that accepts a dictionary and string. Remember, according to TDD, we must right the most minimal amount of code that will pass our test.</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">flatten</span><span class="p">(</span><span class="n">d_flat</span><span class="p">,</span> <span class="n">key_string</span><span class="p">):</span>
+    <span class="k">pass</span></code></pre></div>
+
+<p>Well that was simple enough, lets run our test.</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">======================================================================</span>
+FAIL: test_for_dict <span class="o">(</span>__main__.FlattenTests<span class="o">)</span>
+----------------------------------------------------------------------
+Traceback <span class="o">(</span>most recent call last<span class="o">)</span>:
+File <span class="s2">&quot;tests.py&quot;</span>, line 17, in test_for_dict
+self.assertTrue<span class="o">(</span><span class="nb">type</span><span class="o">(</span>d<span class="o">)</span> is dict<span class="o">)</span>
+AssertionError: False is not <span class="nb">true</span>
+----------------------------------------------------------------------</code></pre></div>
+
+<p>Hmm, seems like we didn&#39;t write enough code! Lets go back and update our <code>flatten</code> function.</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">flatten</span><span class="p">(</span><span class="n">d_flat</span><span class="p">,</span> <span class="n">key_string</span><span class="p">):</span>
+   <span class="k">return</span> <span class="p">{}</span></code></pre></div>
+
+<p>Now that we&#39;ve updated our code, lets run our test again.</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">caster:flatten/ <span class="nv">$ </span>python tests.py
+.
+----------------------------------------------------------------------
+Ran <span class="m">1</span> <span class="nb">test </span>in 0.000s
+
+OK</code></pre></div>
+
+<p>Looks good to me! Now that one of our tests has passed, we can now write another (more interesting) test! I&#39;m not very creative at writing these incremental tests, so lets just get to it.</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">unittest</span>
+<span class="kn">from</span> <span class="nn">flatten</span> <span class="kn">import</span> <span class="n">flatten</span>
+
+<span class="k">class</span> <span class="nc">FlattenTests</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">example</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s">&quot;foo&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s">&quot;bar&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s">&quot;team&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+                        <span class="s">&quot;company&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s">&quot;Bill&quot;</span><span class="p">,</span> <span class="s">&quot;Ted&quot;</span><span class="p">]</span>
+                        <span class="p">}</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">test_for_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">flatten</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">example</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">dict</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">test_case_one</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">flatten</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">example</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;foo/bar/team&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;foo/bar/company&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s">&quot;Bill&quot;</span><span class="p">,</span> <span class="s">&quot;Ted&quot;</span><span class="p">])</span> 
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">unittest</span></code></pre></div>
+
+<p>We&#39;ve defined a new test case, <code>test_case_one</code>, (like I said, I&#39;m not very creative), that&#39;ll run our <code>flatten</code> function and determine if we&#39;ve received the correct output. Lets try running our test case now (and cross our fingers) to see if it fails.</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">caster:flatten/ <span class="nv">$ </span>python tests.py
+E.
+<span class="o">======================================================================</span>
+ERROR: test_case_one <span class="o">(</span>__main__.FlattenTests<span class="o">)</span>
+----------------------------------------------------------------------
+Traceback <span class="o">(</span>most recent call last<span class="o">)</span>:
+File <span class="s2">&quot;tests.py&quot;</span>, line 21, in test_case_one
+self.assertTrue<span class="o">(</span>d<span class="o">[</span><span class="s2">&quot;foo/bar/team&quot;</span><span class="o">])</span>
+KeyError: <span class="s1">&#39;foo/bar/team&#39;</span>
+
+----------------------------------------------------------------------
+Ran <span class="m">2</span> tests in 0.000s
+
+FAILED <span class="o">(</span><span class="nv">errors</span><span class="o">=</span>1<span class="o">)</span></code></pre></div>
+
+<p>Awesome! More good news! :) Before we jump into writing our function, lets think about what we want the function to do.</p>
+
+<ul>
+<li>First we&#39;ll need to iterate through all the key/value pairs in the dictionary passed to the function.</li>
+<li>We&#39;ll then need to determine if the value for the key we&#39;ve iterated to is a dictionary or not.
+
+<ul>
+<li>If the value is a dictionary, we&#39;ll want to recursively call <code>flatten</code> and append our key to <code>key_string</code> so that we&#39;re keeping track of the key we want to eventually use.</li>
+</ul></li>
+<li>The easy (or base) case, if our value is <strong>NOT</strong> a dictionary, simply add it to the dictionary with it&#39;s key append to <code>key_string</code></li>
+<li>Finally, once we&#39;ve iterated through all the values, return the dictionary.</li>
+</ul>
+
+<p>When we put it like that, it sounds easy! (Or so I hope...)</p>
+
+<p>Lets take care of iterating through the dictionary, that sounds easy enough:</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">flatten</span><span class="p">(</span><span class="n">d_flat</span><span class="p">,</span> <span class="n">key_string</span><span class="p">):</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">d_flat</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">pass</span>
+    <span class="k">return</span> <span class="n">d</span></code></pre></div>
+
+<p>Simple enough, we&#39;ve declared an empty dictionary <code>d</code> and started iterating through the items in the dictionary. Lets take a look at our first case, if the value for a key is a dictionary:</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">flatten</span><span class="p">(</span><span class="n">d_flat</span><span class="p">,</span> <span class="n">key_string</span><span class="p">):</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">d_flat</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span>
+    <span class="k">return</span> <span class="n">d</span></code></pre></div>
+
+<p>Okay we&#39;ve added our if statement, now if it&#39;s true, we&#39;ll have to recursively call our function. Before we jump to make the recursive call, we need to ensure we&#39;re keeping track of our <code>key_string</code> value. To do so, we&#39;ll pass <code>key_string</code> with the current key value, <code>k</code>. We&#39;ll recursively call <code>flatten</code> with the inner dictionary stored in <code>v</code>.</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">flatten</span><span class="p">(</span><span class="n">d_flat</span><span class="p">,</span> <span class="n">key_string</span><span class="p">):</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">d_flat</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">flatten</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">key_string</span> <span class="o">+</span> <span class="n">k</span> <span class="o">+</span> <span class="s">&quot;/&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span>
+    <span class="k">return</span> <span class="n">d</span></code></pre></div>
+
+<p>Almost there! We now need to worry about our base case, so let&#39;s take care of that! Recall that we said if our value is not of type dictionary, we simple append it to our dictionary that we declared, <code>d</code>. Again, we have to keep in mind that we want to assign the correct key for our value, which would be our current <code>key_string</code> concatenated with the current key we&#39;re looking at, <code>k</code>. Once we create the right key, we&#39;ll just assign it to our value, <code>v</code> and return our dictionary, <code>d</code>.</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">flatten</span><span class="p">(</span><span class="n">d_flat</span><span class="p">,</span> <span class="n">key_string</span><span class="p">):</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">d_flat</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">flatten</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">key_string</span> <span class="o">+</span> <span class="n">k</span> <span class="o">+</span> <span class="s">&quot;/&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="n">key_string</span> <span class="o">+</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+    <span class="k">return</span> <span class="n">d</span></code></pre></div>
+
+<p>So good so far, lets run our tests!</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">caster:flatten/ <span class="nv">$ </span>python tests.py
+..
+----------------------------------------------------------------------
+Ran <span class="m">2</span> tests in 0.000s
+
+OK</code></pre></div>
+
+<p>Perfect...or so we think. There&#39;s actually a problem in our algorithm, which we can expose by making our testing data little more robust. Lets update our <code>setUp</code> and our <code>test_case_one</code> functions so they look like this:</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">unittest</span>
+<span class="kn">from</span> <span class="nn">flatten</span> <span class="kn">import</span> <span class="n">flatten</span>
+
+<span class="k">class</span> <span class="nc">FlattenTests</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">example</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s">&quot;foo&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s">&quot;bar&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s">&quot;team&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+                        <span class="s">&quot;company&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s">&quot;Bill&quot;</span><span class="p">,</span> <span class="s">&quot;Ted&quot;</span><span class="p">]</span>
+                        <span class="p">}</span>
+                    <span class="p">},</span>
+                    <span class="s">&quot;fizz&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s">&quot;blue&quot;</span><span class="p">:</span> <span class="s">&quot;red&quot;</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">test_for_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">flatten</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">example</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">dict</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">test_case_one</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">flatten</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">example</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;foo/bar/team&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;foo/bar/company&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s">&quot;Bill&quot;</span><span class="p">,</span> <span class="s">&quot;Ted&quot;</span><span class="p">])</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;foo/bar/fiz/blue&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="s">&quot;red&quot;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span></code></pre></div>
+
+<p>We&#39;ve added another key that points to another dictionary. Nothing unusual or out of the oridinary. We&#39;ve also added a new assertion to ensure that the key <code>foo/bar/fiz/blue</code> contains the string <code>red</code>. Lets run our test case and see what happens.</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">caster:flatten/ <span class="nv">$ </span>python tests.py
+E.
+<span class="o">======================================================================</span>
+ERROR: test_case_one <span class="o">(</span>__main__.FlattenTests<span class="o">)</span>
+----------------------------------------------------------------------
+Traceback <span class="o">(</span>most recent call last<span class="o">)</span>:
+File <span class="s2">&quot;tests.py&quot;</span>, line 21, in test_case_one
+self.assertTrue<span class="o">(</span>d<span class="o">[</span><span class="s2">&quot;foo/bar/team&quot;</span><span class="o">])</span>
+KeyError: <span class="s1">&#39;foo/bar/team&#39;</span>
+
+----------------------------------------------------------------------
+Ran <span class="m">2</span> tests in 0.000s
+
+FAILED <span class="o">(</span><span class="nv">errors</span><span class="o">=</span>1<span class="o">)</span></code></pre></div>
+
+<p>Failed! What&#39;s going on here? If you take a look at our algorithm, we&#39;re not <strong>updating</strong> our dictionary when we return from a recursive call, we&#39;re actually <strong>overwriting</strong> it. Let&#39;s make a small change and ensure we&#39;re updating our dictionary and see what happens.</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">flatten</span><span class="p">(</span><span class="n">d_flat</span><span class="p">,</span> <span class="n">key_string</span><span class="p">):</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">d_flat</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">flatten</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">key_string</span> <span class="o">+</span> <span class="n">k</span> <span class="o">+</span> <span class="s">&quot;/&quot;</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="n">key_string</span> <span class="o">+</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+    <span class="k">return</span> <span class="n">d</span></code></pre></div>
+
+<p>Now lets run our tests.</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">caster:flatten/ <span class="nv">$ </span>python tests.py
+..
+----------------------------------------------------------------------
+Ran <span class="m">2</span> tests in 0.000s
+
+OK</code></pre></div>
+
+<p>All is well and now our function works as expected!</p>
+</p>
+            <hr />
+        </div>
+    </div>
+</div>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="http://itsbarakyo.com/css/bootstrap.css" rel="stylesheet">
+        <link href="http://itsbarakyo.com/css/syntax.css" rel="stylesheet">
+        <script type="text/javascript" src="http://itsbarakyo.com/js/jquery-1.10.2.min.js"></script>
+        <script type="text/javascript" src="http://itsbarakyo.com/js/collapse.js"></script>
+        <title>itsbarakyo | Play Framework: Parsing Arrays in JSON Requests</title>
+    </head>
+    <body>
+        <div class="navbar navbar-inverse navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#mobile-links">
+                      <span class="sr-only">Toggle navigation</span>
+                      <span class="glyphicon glyphicon-chevron-down white"></span>
+                    </button>
+                    <h1>itsbarakyo</h1>
+                </div>
+            </div>
+            <div class="collapse navbar-collapse" id="mobile-links">
+                <ul class="nav navbar visible-xs">
+                    <li>
+                        <a href="http://itsbarakyo.com/" class="btn btn-success btn-lg btn-block">HOME</a>
+                    </li>
+                    <li>
+                        <a href="http://itsbarakyo.com/personal/" class="btn btn-info btn-lg btn-block">PERSONAL</a>
+                    </li>
+                    <li>
+                        <a href="http://itsbarakyo.com/likes/" class="btn btn-like btn-lg btn-block">LIKES</a>
+                    </li>
+                    <li>
+                        <a href="http://itsbarakyo.com/notes/" class="btn btn-warning btn-lg btn-block">NOTES</a>
+                    </li>
+                    <li>
+                        <a href="http://itsbarakyo.com/projects/" class="btn btn-danger btn-lg btn-block">PROJECTS</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="navbar navbar-fixed-top hidden-xs" id="navigation">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-12 hidden-xs">
+                        <div class="btn-toolbar">
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com" class="btn btn-success">HOME</a>
+                            </div>
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com/personal/" class="btn btn-info">PERSONAL</a>
+                            </div>
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com/likes/" class="btn btn-like">LIKES</a>
+                            </div>
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com/notes/" class="btn btn-warning">NOTES</a>
+                            </div>
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com/projects/" class="btn btn-danger">PROJECTS</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+<div class="container" id="post-container">
+    <div class="row">
+        <div class="col-sm-12">
+            <blockquote class="notes">
+                <p>
+                    <a href="http://itsbarakyo.com/notes/2014/04/06/play-framework-parsing-json">
+                        Play Framework: Parsing Arrays in JSON Requests
+                    </a>
+                </p>
+                <small>06 Apr 2014</small>
+            </blockquote>
+            <p><h2>tl;dr</h2>
+
+<p>I suggest using <code>ObjectMapper</code> found in the <code>com.fasterxml.jackson.databind.ObjectMapper</code></p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="n">ObjectMapper</span> <span class="n">mapper</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">ObjectMapper</span><span class="o">();</span>
+    <span class="k">try</span> <span class="o">{</span>
+        <span class="n">JsonNode</span> <span class="n">root</span> <span class="o">=</span> <span class="n">request</span><span class="o">().</span><span class="na">body</span><span class="o">().</span><span class="na">asJson</span><span class="o">();</span>
+        <span class="n">JsonNode</span> <span class="n">jsonPhoneNumbers</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;phoneNumbers&quot;</span><span class="o">);</span>
+        <span class="k">for</span><span class="o">(</span><span class="n">JsonNode</span> <span class="n">phoneNumberString</span> <span class="o">:</span> <span class="n">jsonPhoneNumbers</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">String</span> <span class="n">phoneNumber</span> <span class="o">=</span> <span class="n">phoneNumberString</span><span class="o">.</span><span class="na">asText</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="k">catch</span> <span class="o">(</span><span class="n">NullPointerException</span> <span class="n">npe</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// No valid phone numbers were provided</span>
+    <span class="o">}</span></code></pre></div>
+
+<h2>Using ObjectMapper</h2>
+
+<p>For parsing arrays in JSON requests, I suggest using the <code>ObjectMapper</code>. Assuming you have a request that looks like:</p>
+
+<div class="highlight"><pre><code class="language-json" data-lang="json"><span class="p">{</span>
+        <span class="err">phoneNumbers:</span> <span class="err">[</span>
+            <span class="err">&#39;555-555-5555&#39;,</span>
+            <span class="err">&#39;555-555-5556&#39;,</span>
+            <span class="err">&#39;555-555-5557&#39;</span>
+        <span class="err">]</span>
+    <span class="p">}</span></code></pre></div>
+
+<p>We can easily access the phone number values by using <code>ObjectMapper</code> class. The first thing that you&#39;d want to do is instantiate an instance of this class, which is pretty straight forward.</p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="n">ObjectMapper</span> <span class="n">mapper</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">ObjectMapper</span><span class="o">();</span></code></pre></div>
+
+<p>From there, we want a JSON version of our request, the Play framework allows you to easily do so by chaining the <code>asJson()</code> method to the <code>request().body()</code> functions.</p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="n">JsonNode</span> <span class="n">root</span> <span class="o">=</span> <span class="n">request</span><span class="o">().</span><span class="na">body</span><span class="o">().</span><span class="na">asJson</span><span class="o">();</span></code></pre></div>
+
+<p>Using the <code>get()</code> function on our <code>root</code> object and providing the correct key, we can easily get our phoneNumbers as a JsonNode, which is also iterable. By iterating through each of the JsonNode objects, we can just return the value for the corresponding phone number as a <code>String</code> by using the <code>asText()</code> method.</p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="n">JsonNode</span> <span class="n">jsonPhoneNumbers</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;phoneNumbers&quot;</span><span class="o">);</span>
+    <span class="k">for</span><span class="o">(</span><span class="n">JsonNode</span> <span class="n">phoneNumberString</span> <span class="o">:</span> <span class="n">jsonPhoneNumbers</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">String</span> <span class="n">phoneNumber</span> <span class="o">=</span> <span class="n">phoneNumberString</span><span class="o">.</span><span class="na">asText</span><span class="o">();</span>
+    <span class="o">}</span></code></pre></div>
+
+<p>Since there is a possibility that the request could be empty (null), I suggest wrapping the request processing in a try-catch block. If a request is null or the specified key was not included in the request (in this example it would be <code>phoneNumbers</code>) then we can use the <code>catch</code> portion of the block to easily return a bad request.</p>
+
+<p>Put this all together looks like:</p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="kn">import</span> <span class="nn">com.fasterxml.jackson.databind.JsonNode</span><span class="o">;</span>
+    <span class="kn">import</span> <span class="nn">com.fasterxml.jackson.databind.ObjectMapper</span><span class="o">;</span>
+    <span class="kn">import</span> <span class="nn">com.fasterxml.jackson.databind.node.ObjectNode</span><span class="o">;</span>
+    <span class="kn">import</span> <span class="nn">play.libs.Json</span><span class="o">;</span>
+
+    <span class="n">ObjectMapper</span> <span class="n">mapper</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">ObjectMapper</span><span class="o">();</span>
+    <span class="n">ObjectNode</span> <span class="n">response</span> <span class="o">=</span> <span class="n">Json</span><span class="o">.</span><span class="na">newObject</span><span class="o">();</span>
+    <span class="k">try</span> <span class="o">{</span>
+        <span class="n">JsonNode</span> <span class="n">root</span> <span class="o">=</span> <span class="n">request</span><span class="o">().</span><span class="na">body</span><span class="o">().</span><span class="na">asJson</span><span class="o">();</span>
+        <span class="n">JsonNode</span> <span class="n">jsonPhoneNumbers</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;phoneNumbers&quot;</span><span class="o">);</span>
+        <span class="k">for</span><span class="o">(</span><span class="n">JsonNode</span> <span class="n">phoneNumberString</span> <span class="o">:</span> <span class="n">jsonPhoneNumbers</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">String</span> <span class="n">phoneNumber</span> <span class="o">=</span> <span class="n">phoneNumberString</span><span class="o">.</span><span class="na">asText</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="k">catch</span> <span class="o">(</span><span class="n">NullPointerException</span> <span class="n">npe</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// No valid phone numbers were provided</span>
+        <span class="n">response</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;status&quot;</span><span class="o">,</span> <span class="mi">400</span><span class="o">);</span>
+        <span class="n">response</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;message&quot;</span><span class="o">,</span> <span class="s">&quot;No phone numbers were provided&quot;</span><span class="o">);</span>
+        <span class="k">return</span> <span class="nf">badRequest</span><span class="o">(</span><span class="n">response</span><span class="o">);</span>
+    <span class="o">}</span></code></pre></div>
+</p>
+            <hr />
+        </div>
+    </div>
+</div>

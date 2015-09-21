@@ -1,0 +1,19 @@
+---
+---
+{% include header.html %}
+<div class="container" id="post-container">
+    <div class="row">
+        <div class="col-sm-12">
+            <blockquote class="{{page.category}}">
+                <p>
+                    <a href="{{site.url}}{{page.id}}">
+                        {{ page.title }}
+                    </a>
+                </p>
+                <small>{{ page.date | date_to_string }}</small>
+            </blockquote>
+            <p>{{ content }}</p>
+            <hr />
+        </div>
+    </div>
+</div>

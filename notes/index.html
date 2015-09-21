@@ -1,0 +1,11 @@
+---
+---
+{% include header.html %}
+<div class="container" id="post-container">
+    {% for post in site.posts %}
+        {% if post.category == "notes" %}
+            {% include cat_post.html %}
+        {% endif %}
+    {% endfor %}
+</div>
+{% include footer.html %}

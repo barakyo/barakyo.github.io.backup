@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="http://itsbarakyo.com/css/bootstrap.css" rel="stylesheet">
+        <link href="http://itsbarakyo.com/css/syntax.css" rel="stylesheet">
+        <script type="text/javascript" src="http://itsbarakyo.com/js/jquery-1.10.2.min.js"></script>
+        <script type="text/javascript" src="http://itsbarakyo.com/js/collapse.js"></script>
+        <title>itsbarakyo | </title>
+    </head>
+    <body>
+        <div class="navbar navbar-inverse navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#mobile-links">
+                      <span class="sr-only">Toggle navigation</span>
+                      <span class="glyphicon glyphicon-chevron-down white"></span>
+                    </button>
+                    <h1>itsbarakyo</h1>
+                </div>
+            </div>
+            <div class="collapse navbar-collapse" id="mobile-links">
+                <ul class="nav navbar visible-xs">
+                    <li>
+                        <a href="http://itsbarakyo.com/" class="btn btn-success btn-lg btn-block">HOME</a>
+                    </li>
+                    <li>
+                        <a href="http://itsbarakyo.com/personal/" class="btn btn-info btn-lg btn-block">PERSONAL</a>
+                    </li>
+                    <li>
+                        <a href="http://itsbarakyo.com/likes/" class="btn btn-like btn-lg btn-block">LIKES</a>
+                    </li>
+                    <li>
+                        <a href="http://itsbarakyo.com/notes/" class="btn btn-warning btn-lg btn-block">NOTES</a>
+                    </li>
+                    <li>
+                        <a href="http://itsbarakyo.com/projects/" class="btn btn-danger btn-lg btn-block">PROJECTS</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="navbar navbar-fixed-top hidden-xs" id="navigation">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-12 hidden-xs">
+                        <div class="btn-toolbar">
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com" class="btn btn-success">HOME</a>
+                            </div>
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com/personal/" class="btn btn-info">PERSONAL</a>
+                            </div>
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com/likes/" class="btn btn-like">LIKES</a>
+                            </div>
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com/notes/" class="btn btn-warning">NOTES</a>
+                            </div>
+                            <div class="btn-group btn-group-lg">
+                                <a href="http://itsbarakyo.com/projects/" class="btn btn-danger">PROJECTS</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+<div class="container" id="post-container">
+    
+        
+            <div class="row">
+    <div class="col-sm-12">
+        <blockquote class="projects">
+            <p>
+                <a href="http://itsbarakyo.com/projects/2015/09/17/elisper-lisp-in-elixir.html">
+                    Elisper - Parsing Lisp in Elixir
+                </a>
+            </p>
+            <small>17 Sep 2015</small>
+        </blockquote>
+        <p><p>I recently read a really interesting and great blog post titled <a href="http://danthedev.com/2015/09/09/lisp-in-your-language/">Lisp in your Language</a> by Dan Prince. The article walked through an implementation of a subset of Lisp. After reading the post, I thought it was a great project to not only have a deeper understanding of Lisp but also of the language that the implementation is in. In fact, I was so inspired by the post, I decided that maybe I&#39;d give it a shot to write it in <a href="https://elixir-lang.org">Elixir</a>.</p>
+
+<p>I&#39;ve been reading and messing around with Elixir for the past month or so. Elixir is a dynamically typed functional programming language built on top of the Erlang VM BEAM. The language is showing a lot of promise and even more interesting it&#39;s built on top of a very scalable platform.</p>
+
+<p>Funny enough, besides syntax, I find Elixir very similar to Clojure (a Lisp dialect implemented on the JVM). If you&#39;re not familiar with Lisps by now, they have a very simple syntax that follows the convention</p>
+
+<div class="highlight"><pre><code class="language-clojure" data-lang="clojure"><span class="p">(</span><span class="nf">fn-name</span> <span class="nv">arg1</span> <span class="nv">arg2</span> <span class="nv">...</span> <span class="nv">argn</span> <span class="p">)</span></code></pre></div>
+
+<p>With introductions out of the way, I&#39;ll try to write this as incrementally as possible. Unfortunately, I didn&#39;t make initial git commits when I was starting out, so some of the initial code is from memory.</p>
+
+<h4>Starting Out</h4>
+
+<p>In the blog post, Prince originally starts out by evaluating a predefined function using Javascript&#39;s <code>fn.apply</code> method. I thought this was a good way to start so I began by doing the same.</p>
+
+<div class="highlight"><pre><code class="language-elixir" data-lang="elixir"><span class="kd">defmodule</span> <span class="nc">Elisper</span> <span class="k">do</span>
+  <span class="kd">def</span> <span class="n">eval</span><span class="p">([</span><span class="n">expr</span> <span class="p">|</span> <span class="n">args</span><span class="p">])</span> <span class="k">do</span>
+    <span class="n">apply</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre></div>
+
+<p>Similarly to Javascipt, Elixir has an <code>apply/2</code> function which allows you to provide a function name and a list of arguments to pass to that function. The nice thing about function parameters in Elixir is that we can pattern match in them immediately, allowing us to easily pull apart the values in a list and alias them. For the parameter <code>[expr | args]</code>, we&#39;re saying bind the first value (or head) of the list to the name <code>expr</code> and the rest of the list (or tail) to the name <code>args</code> (note that <code>args</code> is also a list).</p>
+
+<p>We can test this out through unit tests:</p>
+
+<div class="highlight"><pre><code class="language-elixir" data-lang="elixir"><span class="kd">defmodule</span> <span class="nc">ElisperTest</span> <span class="k">do</span>
+  <span class="kn">use</span> <span class="nc">ExUnit.Case</span><span class="p">,</span> <span class="ss">async</span><span class="p">:</span> <span class="no">true</span>
+
+  <span class="n">test</span> <span class="s2">&quot;sum function&quot;</span> <span class="k">do</span>
+    <span class="n">sum</span> <span class="p">=</span> <span class="k">fn</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="k">end</span>
+    <span class="n">assert</span> <span class="p">(</span><span class="nc">Elisper</span><span class="p">.</span><span class="n">eval</span><span class="p">([</span><span class="n">sum</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]))</span> <span class="o">==</span> <span class="mi">3</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre></div>
+
+<p>In our first unit test, we&#39;re creating an anonymous function <code>sum</code> which we&#39;re passing to our <code>eval</code> function with the arguments 1 and 2. Note that for pattern matching our <code>expr</code> value would be the function <code>sum</code> and the <code>args</code> parameter would take the value <code>[1,2]</code>. Let&#39;s run our test and see what we get...</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">[~/D/elisper|ruby-2.2.3]
+$ mix test lib/elisper.ex:8                                                    0|11:22:59
+Including tags: [line: &quot;8&quot;]
+Excluding tags: [:test]
+
+
+
+Finished in 0.04 seconds (0.04s on load, 0.00s on tests)
+0 tests, 0 failures
+
+Randomized with seed 560288
+</code></pre></div>
+<h4>Mathematical and Native Operations</h4>
+
+<p>The next step in Dan&#39;s article is the ability to pass arithmetic functions such as plus, minus, division, subtraction, etc. Dan accomplishes this by creating a Javascript object which he uses the passed in string as a key in the object&#39;s properties. We can follow a similar example in Elixir using Maps and atoms for cleaner syntax. Originally I was hoping to be able to pass in the already defined arithmetic functions in Elixir such as <code>Kernal.+/2</code> but I was unsuccessful in passing the function without it being evaluated. Our syntax for evaluating our &quot;native&quot; functions will be using atoms. Let&#39;s start by writing a test to show how this would look.</p>
+
+<div class="highlight"><pre><code class="language-elixir" data-lang="elixir"><span class="kd">defmodule</span> <span class="nc">ElisperTest</span> <span class="k">do</span>
+  <span class="kn">use</span> <span class="nc">ExUnit.Case</span><span class="p">,</span> <span class="ss">async</span><span class="p">:</span> <span class="no">true</span>
+
+  <span class="n">test</span> <span class="s2">&quot;sum function&quot;</span> <span class="k">do</span>
+    <span class="n">sum</span> <span class="p">=</span> <span class="k">fn</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="k">end</span>
+    <span class="n">assert</span> <span class="p">(</span><span class="nc">Elisper</span><span class="p">.</span><span class="n">eval</span><span class="p">([</span><span class="n">sum</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]))</span> <span class="o">==</span> <span class="mi">3</span>
+  <span class="k">end</span>
+
+  <span class="n">test</span> <span class="s2">&quot;native addition function&quot;</span> <span class="k">do</span>
+    <span class="n">assert</span> <span class="p">(</span><span class="nc">Elisper</span><span class="p">.</span><span class="n">eval</span><span class="p">([</span><span class="ss">:+</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]))</span> <span class="o">==</span> <span class="mi">3</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre></div>
+
+<p>You can see that from the new test the arguments to our eval function is now a list containing an atom <code>:+</code> to represent our native addition function with the same arguments 1 and 2. Let&#39;s update our implementation to support these native functions.</p>
+
+<p>We&#39;ll start by defining a new eval function using a guard statement. A guard statement allows us to define a function that will only be called when a set of conditions are true. In this case, we want to create an <code>eval</code> that will be called when we pass an <code>atom</code> as the head of the list. In this function we&#39;ll define our <code>native_ops</code> map which will be a map containing a list of our native arithmetic functions.</p>
+
+<div class="highlight"><pre><code class="language-elixir" data-lang="elixir"><span class="kd">defmodule</span> <span class="nc">Elisper</span> <span class="k">do</span>
+  <span class="kd">def</span> <span class="n">eval</span><span class="p">([</span><span class="n">expr</span> <span class="p">|</span> <span class="n">args</span><span class="p">]</span> <span class="p">=</span> <span class="n">expression</span><span class="p">)</span> <span class="ow">when</span> <span class="n">is_atom</span><span class="p">(</span><span class="n">expr</span><span class="p">)</span> <span class="k">do</span>
+    <span class="n">native_ops</span> <span class="p">=</span> <span class="p">%{</span>
+      <span class="ss">+</span><span class="p">:</span> <span class="k">fn</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="k">end</span><span class="p">,</span>
+      <span class="ss">-</span><span class="p">:</span> <span class="k">fn</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">a</span> <span class="o">-</span> <span class="n">b</span> <span class="k">end</span><span class="p">,</span>
+      <span class="ss">*</span><span class="p">:</span> <span class="k">fn</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span> <span class="k">end</span><span class="p">,</span>
+      <span class="ss">/</span><span class="p">:</span> <span class="k">fn</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">a</span> <span class="o">/</span> <span class="n">b</span> <span class="k">end</span><span class="p">,</span>
+      <span class="p">=</span><span class="err">:</span> <span class="k">fn</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">a</span> <span class="o">==</span> <span class="n">b</span> <span class="k">end</span>
+    <span class="p">}</span>
+    <span class="k">case</span> <span class="nc">Map</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="n">native_ops</span><span class="p">,</span> <span class="n">expr</span><span class="p">)</span> <span class="k">do</span>
+      <span class="no">nil</span> <span class="p">-&gt;</span> <span class="n">eval</span><span class="p">(</span><span class="n">expression</span><span class="p">)</span>
+      <span class="n">func</span> <span class="p">-&gt;</span> <span class="n">eval</span><span class="p">([</span><span class="n">func</span><span class="p">]</span> <span class="o">++</span> <span class="n">args</span><span class="p">)</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="kd">def</span> <span class="n">eval</span><span class="p">([</span><span class="n">expr</span> <span class="p">|</span> <span class="n">args</span><span class="p">])</span> <span class="k">do</span>
+    <span class="n">apply</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre></div>
+
+<p>Let&#39;s run our tests to verify that what we&#39;ve done works correctly:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">$ mix test test/elisper_test.exs                                              0|13:54:00
+..
+
+Finished in 0.03 seconds (0.03s on load, 0.00s on tests)
+2 tests, 0 failures
+
+Randomized with seed 398982
+</code></pre></div>
+<h4>Handling Nested Expressions</h4>
+
+<p>The next thing we want to do is handle nested arguments. Lisps can evaluate nested expressions in the form:</p>
+
+<div class="highlight"><pre><code class="language-clojure" data-lang="clojure"><span class="p">(</span><span class="nb">+ </span><span class="p">(</span><span class="nb">+ </span><span class="mi">1</span> <span class="mi">1</span><span class="p">)</span> <span class="p">(</span><span class="nb">+ </span><span class="mi">1</span> <span class="mi">1</span><span class="p">))</span></code></pre></div>
+
+<p>We want to be able to handle the same expressions. Since we already have an idea of what we want to test, let&#39;s start by again writing our tests first.</p>
+
+<div class="highlight"><pre><code class="language-elixir" data-lang="elixir"><span class="kd">defmodule</span> <span class="nc">ElisperTest</span> <span class="k">do</span>
+  <span class="kn">use</span> <span class="nc">ExUnit.Case</span><span class="p">,</span> <span class="ss">async</span><span class="p">:</span> <span class="no">true</span>
+
+  <span class="n">test</span> <span class="s2">&quot;sum function&quot;</span> <span class="k">do</span>
+    <span class="n">sum</span> <span class="p">=</span> <span class="k">fn</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="k">end</span>
+    <span class="n">assert</span> <span class="p">(</span><span class="nc">Elisper</span><span class="p">.</span><span class="n">eval</span><span class="p">([</span><span class="n">sum</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]))</span> <span class="o">==</span> <span class="mi">3</span>
+  <span class="k">end</span>
+
+  <span class="n">test</span> <span class="s2">&quot;native addition function&quot;</span> <span class="k">do</span>
+    <span class="n">assert</span> <span class="p">(</span><span class="nc">Elisper</span><span class="p">.</span><span class="n">eval</span><span class="p">([</span><span class="ss">:+</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]))</span> <span class="o">==</span> <span class="mi">3</span>
+  <span class="k">end</span>
+
+  <span class="n">test</span> <span class="s2">&quot;two recursive arguments&quot;</span> <span class="k">do</span>
+    <span class="n">assert</span> <span class="p">(</span><span class="nc">Elisper</span><span class="p">.</span><span class="n">eval</span><span class="p">([</span><span class="ss">:+</span><span class="p">,</span> <span class="p">[</span><span class="ss">:+</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="ss">:+</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]))</span> <span class="o">==</span> <span class="mi">4</span>
+ <span class="k">end</span>
+
+<span class="k">end</span></code></pre></div>
+
+<p>Before attempting the implementation for evaluating nested arguments. I&#39;d like to explain the solution that I took. Before evaluating the function and its arguments in our <code>eval</code> function that calls <code>apply/2</code>, we could iterate through the list of values and determine if a list exists. If one of the values is a list, we can recursively call eval, which will format and evaluate the nested expression. Let&#39;s see what that looks like:</p>
+
+<div class="highlight"><pre><code class="language-elixir" data-lang="elixir"><span class="kd">defmodule</span> <span class="nc">Elisper</span> <span class="k">do</span>
+  <span class="kd">def</span> <span class="n">eval</span><span class="p">([</span><span class="n">expr</span> <span class="p">|</span> <span class="n">args</span><span class="p">]</span> <span class="p">=</span> <span class="n">expression</span><span class="p">)</span> <span class="ow">when</span> <span class="n">is_atom</span><span class="p">(</span><span class="n">expr</span><span class="p">)</span> <span class="k">do</span>
+    <span class="n">native_ops</span> <span class="p">=</span> <span class="p">%{</span>
+      <span class="ss">+</span><span class="p">:</span> <span class="k">fn</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="k">end</span><span class="p">,</span>
+      <span class="ss">-</span><span class="p">:</span> <span class="k">fn</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">a</span> <span class="o">-</span> <span class="n">b</span> <span class="k">end</span><span class="p">,</span>
+      <span class="ss">*</span><span class="p">:</span> <span class="k">fn</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span> <span class="k">end</span><span class="p">,</span>
+      <span class="ss">/</span><span class="p">:</span> <span class="k">fn</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">a</span> <span class="o">/</span> <span class="n">b</span> <span class="k">end</span><span class="p">,</span>
+      <span class="p">=</span><span class="err">:</span> <span class="k">fn</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">a</span> <span class="o">==</span> <span class="n">b</span> <span class="k">end</span>
+    <span class="p">}</span>
+    <span class="k">case</span> <span class="nc">Map</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="n">native_ops</span><span class="p">,</span> <span class="n">expr</span><span class="p">)</span> <span class="k">do</span>
+      <span class="no">nil</span> <span class="p">-&gt;</span> <span class="n">eval</span><span class="p">(</span><span class="n">expression</span><span class="p">)</span>
+      <span class="n">func</span> <span class="p">-&gt;</span> <span class="n">eval</span><span class="p">([</span><span class="n">func</span><span class="p">]</span> <span class="o">++</span> <span class="n">args</span><span class="p">)</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="kd">def</span> <span class="n">eval</span><span class="p">([</span><span class="n">expr</span> <span class="p">|</span> <span class="n">args</span><span class="p">])</span> <span class="k">do</span>
+    <span class="n">sub_exprs</span> <span class="p">=</span> <span class="nc">Enum</span><span class="p">.</span><span class="n">map</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="k">fn</span>
+      <span class="p">([</span><span class="n">_h</span> <span class="p">|</span> <span class="n">_t</span><span class="p">]</span> <span class="p">=</span> <span class="n">arg</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">eval</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+      <span class="n">arg</span> <span class="p">-&gt;</span> <span class="n">arg</span>
+    <span class="k">end</span><span class="p">)</span>
+    <span class="n">apply</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">sub_exprs</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre></div>
+
+<p>Lets break this down piece by piece. First we start out by enumerating over all of our arguments using <code>Enum.map</code>. As people are familiar with <code>map</code> functions in other languages, they accept a collection to iterate through and a function to apply to each argument. In this case we&#39;ve created an anonymous function that has two bodies. An awesome feature about Elixir is that anonymous functions can pattern match and have multiple bodies allowing us to handle different input. In this case, we want to specifically handle two inputs, one where the value is a list and when the supplied argument is just a single value. By pattern matching on an item with a head and tail, we can match against lists and as we&#39;ve stated before, recursively call eval on our list. If the supplied argument is just a value, we simply want to return it. Once we&#39;ve completed enumerating through and evaluating all of the arguments, we can finally call <code>apply/2</code> with our original <code>expr</code> and the newly evaluated <code>sub_exprs</code>.</p>
+
+<h4>Conditionals</h4>
+
+<p>One of the many features we use while programming is conditionals. To make some interesting expressions, let&#39;s add support for conditionals into our implementation. Conditionals in the Lisps take the form:</p>
+
+<div class="highlight"><pre><code class="language-clojure" data-lang="clojure"><span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nf">conditional</span><span class="p">)</span>
+  <span class="p">(</span><span class="nf">true</span><span class="p">)</span>
+  <span class="p">(</span><span class="nf">false</span><span class="p">)</span>
+<span class="p">)</span></code></pre></div>
+
+<p>We can define a simple conditional using the test:</p>
+
+<div class="highlight"><pre><code class="language-elixir" data-lang="elixir"><span class="n">test</span> <span class="s2">&quot;if clause&quot;</span> <span class="k">do</span>
+  <span class="n">assert</span> <span class="p">(</span><span class="nc">Elisper</span><span class="p">.</span><span class="n">eval</span><span class="p">([</span><span class="ss">:if</span><span class="p">,</span> <span class="p">[</span><span class="err">:</span><span class="p">=,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="ss">:+</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="ss">:+</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]]))</span> <span class="o">==</span> <span class="mi">2</span>
+<span class="k">end</span></code></pre></div>
+
+<p>We can handle the case for <code>if</code> within our <code>native_ops</code> map. Within <code>native_ops</code>  we can simply define a function for the if key that accepts 3 arguements, a <code>conditional</code>, the <code>first</code> (or true) clause, and the <code>second</code> (or false) clause. From there we can simply evaluate our <code>conditional</code> that is passed to our function. As you may have guessed, if <code>conditional</code> evaluates to true, we simply return <code>first</code>, else we return <code>second</code>.</p>
+
+<div class="highlight"><pre><code class="language-elixir" data-lang="elixir"><span class="kd">defmodule</span> <span class="nc">Elisper</span> <span class="k">do</span>
+  <span class="kd">def</span> <span class="n">eval</span><span class="p">([</span><span class="n">expr</span> <span class="p">|</span> <span class="n">args</span><span class="p">]</span> <span class="p">=</span> <span class="n">expression</span><span class="p">)</span> <span class="ow">when</span> <span class="n">is_atom</span><span class="p">(</span><span class="n">expr</span><span class="p">)</span> <span class="k">do</span>
+    <span class="n">native_ops</span> <span class="p">=</span> <span class="p">%{</span>
+      <span class="ss">+</span><span class="p">:</span> <span class="k">fn</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="k">end</span><span class="p">,</span>
+      <span class="ss">-</span><span class="p">:</span> <span class="k">fn</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">a</span> <span class="o">-</span> <span class="n">b</span> <span class="k">end</span><span class="p">,</span>
+      <span class="ss">*</span><span class="p">:</span> <span class="k">fn</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span> <span class="k">end</span><span class="p">,</span>
+      <span class="ss">/</span><span class="p">:</span> <span class="k">fn</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">a</span> <span class="o">/</span> <span class="n">b</span> <span class="k">end</span><span class="p">,</span>
+      <span class="p">=</span><span class="err">:</span> <span class="k">fn</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">a</span> <span class="o">==</span> <span class="n">b</span> <span class="k">end</span><span class="p">,</span>
+      <span class="ss">if</span><span class="p">:</span> <span class="k">fn</span><span class="p">(</span><span class="n">conditional</span><span class="p">,</span> <span class="n">first</span><span class="p">,</span> <span class="n">second</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="k">if</span><span class="p">(</span><span class="n">conditional</span><span class="p">)</span> <span class="k">do</span> <span class="n">first</span> <span class="k">else</span> <span class="n">second</span> <span class="k">end</span> <span class="k">end</span>
+    <span class="p">}</span>
+    <span class="k">case</span> <span class="nc">Map</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="n">native_ops</span><span class="p">,</span> <span class="n">expr</span><span class="p">)</span> <span class="k">do</span>
+      <span class="no">nil</span> <span class="p">-&gt;</span> <span class="n">eval</span><span class="p">(</span><span class="n">expression</span><span class="p">)</span>
+      <span class="n">func</span> <span class="p">-&gt;</span> <span class="n">eval</span><span class="p">([</span><span class="n">func</span><span class="p">]</span> <span class="o">++</span> <span class="n">args</span><span class="p">)</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="kd">def</span> <span class="n">eval</span><span class="p">([</span><span class="n">expr</span> <span class="p">|</span> <span class="n">args</span><span class="p">])</span> <span class="k">do</span>
+    <span class="n">sub_exprs</span> <span class="p">=</span> <span class="nc">Enum</span><span class="p">.</span><span class="n">map</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="k">fn</span>
+      <span class="p">([</span><span class="n">_h</span> <span class="p">|</span> <span class="n">_t</span><span class="p">]</span> <span class="p">=</span> <span class="n">arg</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">eval</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+      <span class="n">arg</span> <span class="p">-&gt;</span> <span class="n">arg</span>
+    <span class="k">end</span><span class="p">)</span>
+    <span class="n">apply</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">sub_exprs</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre></div>
+
+<h4>Binding Values</h4>
+
+<p>One of the harder things that I came across was the ability to define values. Values in Lisps are bound using the <code>def</code> expression. These bound values are immutable and cannot be changed. Let&#39;s take a look at what an expression would look like:</p>
+
+<div class="highlight"><pre><code class="language-clojure" data-lang="clojure"><span class="p">(</span><span class="k">def </span><span class="nv">a</span> <span class="mi">5</span><span class="p">)</span></code></pre></div>
+
+<p>Doing so allows us to use these values in other contexts like:</p>
+
+<div class="highlight"><pre><code class="language-clojure" data-lang="clojure"><span class="p">(</span><span class="nf">do</span>
+  <span class="p">(</span><span class="k">def </span><span class="nv">a</span> <span class="mi">5</span><span class="p">)</span>
+  <span class="p">(</span><span class="nb">+ </span><span class="nv">a</span> <span class="nv">a</span><span class="p">)</span>
+<span class="p">)</span></code></pre></div>
+
+<p>At this point, we have an idea for our next test and we also know what we want to implement, <code>do</code> and <code>def</code> expressions.</p>
+
+<div class="highlight"><pre><code class="language-elixir" data-lang="elixir"><span class="kd">defmodule</span> <span class="nc">ElisperTest</span> <span class="k">do</span>
+  <span class="kn">use</span> <span class="nc">ExUnit.Case</span><span class="p">,</span> <span class="ss">async</span><span class="p">:</span> <span class="no">true</span>
+
+  <span class="n">test</span> <span class="s2">&quot;sum function&quot;</span> <span class="k">do</span>
+    <span class="n">sum</span> <span class="p">=</span> <span class="k">fn</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="k">end</span>
+    <span class="n">assert</span> <span class="p">(</span><span class="nc">Elisper</span><span class="p">.</span><span class="n">eval</span><span class="p">([</span><span class="n">sum</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]))</span> <span class="o">==</span> <span class="mi">3</span>
+  <span class="k">end</span>
+
+  <span class="n">test</span> <span class="s2">&quot;native addition function&quot;</span> <span class="k">do</span>
+    <span class="n">assert</span> <span class="p">(</span><span class="nc">Elisper</span><span class="p">.</span><span class="n">eval</span><span class="p">([</span><span class="ss">:+</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]))</span> <span class="o">==</span> <span class="mi">3</span>
+  <span class="k">end</span>
+
+  <span class="n">test</span> <span class="s2">&quot;two recursive arguments&quot;</span> <span class="k">do</span>
+    <span class="n">assert</span> <span class="p">(</span><span class="nc">Elisper</span><span class="p">.</span><span class="n">eval</span><span class="p">([</span><span class="ss">:+</span><span class="p">,</span> <span class="p">[</span><span class="ss">:+</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="ss">:+</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]))</span> <span class="o">==</span> <span class="mi">4</span>
+ <span class="k">end</span>
+
+ <span class="n">test</span> <span class="s2">&quot;def&quot;</span> <span class="k">do</span>
+   <span class="n">assert</span> <span class="p">(</span><span class="nc">Elisper</span><span class="p">.</span><span class="n">eval</span><span class="p">([</span><span class="ss">:do</span><span class="p">,</span> <span class="p">[</span><span class="ss">:def</span><span class="p">,</span> <span class="ss">:a</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="ss">:+</span><span class="p">,</span> <span class="ss">:a</span><span class="p">,</span> <span class="ss">:a</span><span class="p">]]))</span> <span class="o">==</span> <span class="mi">10</span>
+ <span class="k">end</span>
+
+<span class="k">end</span></code></pre></div>
+
+<p>Now that we have our tests defined, we need to review what our implementation may look like. After trying out a number of options, I decided the best way to handle <code>def</code> clauses was to treat them separately before evaluating any expressions. I would iterate through the passed in arguments and define a <code>scope</code> which could be carried through evaluation that would hold all of the bounded values from the <code>def</code> clauses. Some of our steps:</p>
+
+<ul>
+<li>Update existing <code>eval</code> functions to accept a second <code>scope</code> parameter.</li>
+<li>Implement a new <code>eval</code> function that accepts only one parameter (the expression to evaluate) where the default scope is an empty scope.</li>
+<li>Before calling our <code>eval/2</code> functions, we&#39;ll update our scope with all the bounded variables to pass to our lower <code>eval/2</code> functions.</li>
+<li>Handle our <code>def</code> and <code>do</code> functions.</li>
+<li>Replace any instances of our variables with their bounded values.</li>
+</ul>
+
+<p><strong>Step 1:</strong> Update existing functions and define new <code>eval/1</code> function.</p>
+
+<div class="highlight"><pre><code class="language-elixir" data-lang="elixir"><span class="kd">defmodule</span> <span class="nc">Elisper</span> <span class="k">do</span>
+
+  <span class="kd">def</span> <span class="n">eval</span><span class="p">([</span><span class="n">expr</span> <span class="p">|</span> <span class="n">args</span><span class="p">]</span> <span class="p">=</span> <span class="n">expression</span><span class="p">,</span> <span class="n">scope</span><span class="p">)</span> <span class="ow">when</span> <span class="n">is_atom</span><span class="p">(</span><span class="n">expr</span><span class="p">)</span> <span class="k">do</span>
+    <span class="n">native_ops</span> <span class="p">=</span> <span class="p">%{</span>
+      <span class="ss">+</span><span class="p">:</span> <span class="k">fn</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="k">end</span><span class="p">,</span>
+      <span class="ss">-</span><span class="p">:</span> <span class="k">fn</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">a</span> <span class="o">-</span> <span class="n">b</span> <span class="k">end</span><span class="p">,</span>
+      <span class="ss">*</span><span class="p">:</span> <span class="k">fn</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span> <span class="k">end</span><span class="p">,</span>
+      <span class="ss">/</span><span class="p">:</span> <span class="k">fn</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">a</span> <span class="o">/</span> <span class="n">b</span> <span class="k">end</span><span class="p">,</span>
+      <span class="p">=</span><span class="err">:</span> <span class="k">fn</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">a</span> <span class="o">==</span> <span class="n">b</span> <span class="k">end</span><span class="p">,</span>
+      <span class="ss">if</span><span class="p">:</span> <span class="k">fn</span><span class="p">(</span><span class="n">conditional</span><span class="p">,</span> <span class="n">first</span><span class="p">,</span> <span class="n">second</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="k">if</span><span class="p">(</span><span class="n">conditional</span><span class="p">)</span> <span class="k">do</span> <span class="n">first</span> <span class="k">else</span> <span class="n">second</span> <span class="k">end</span> <span class="k">end</span>
+    <span class="p">}</span>
+    <span class="k">case</span> <span class="nc">Map</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="n">native_ops</span><span class="p">,</span> <span class="n">expr</span><span class="p">)</span> <span class="k">do</span>
+      <span class="no">nil</span> <span class="p">-&gt;</span> <span class="n">eval</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="n">scope</span><span class="p">)</span>
+      <span class="n">func</span> <span class="p">-&gt;</span> <span class="n">eval</span><span class="p">([</span><span class="n">func</span><span class="p">]</span> <span class="o">++</span> <span class="n">args</span><span class="p">,</span> <span class="n">scope</span><span class="p">)</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="kd">def</span> <span class="n">eval</span><span class="p">([</span><span class="n">expr</span> <span class="p">|</span> <span class="n">args</span><span class="p">],</span> <span class="n">scope</span><span class="p">)</span> <span class="k">do</span>
+    <span class="n">sub_exprs</span> <span class="p">=</span> <span class="nc">Enum</span><span class="p">.</span><span class="n">map</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="k">fn</span>
+      <span class="p">([</span><span class="n">_h</span> <span class="p">|</span> <span class="n">_t</span><span class="p">]</span> <span class="p">=</span> <span class="n">arg</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">eval</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">scope</span><span class="p">)</span>
+      <span class="n">arg</span> <span class="p">-&gt;</span> <span class="n">arg</span>
+    <span class="k">end</span><span class="p">)</span>
+    <span class="n">apply</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">sub_exprs</span><span class="p">)</span>
+  <span class="k">end</span>
+
+<span class="k">end</span></code></pre></div>
+
+<p><strong>Step 2:</strong> Define new <code>eval/1</code> function.</p>
+
+<div class="highlight"><pre><code class="language-elixir" data-lang="elixir"><span class="kd">defmodule</span> <span class="nc">Elisper</span> <span class="k">do</span>
+
+  <span class="kd">def</span> <span class="n">eval</span><span class="p">(</span><span class="n">expr</span><span class="p">)</span> <span class="k">do</span>
+    <span class="n">eval</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="p">%{})</span>
+  <span class="k">end</span>
+
+  <span class="kd">def</span> <span class="n">eval</span><span class="p">([</span><span class="n">expr</span> <span class="p">|</span> <span class="n">args</span><span class="p">]</span> <span class="p">=</span> <span class="n">expression</span><span class="p">,</span> <span class="n">scope</span><span class="p">)</span> <span class="ow">when</span> <span class="n">is_atom</span><span class="p">(</span><span class="n">expr</span><span class="p">)</span> <span class="k">do</span>
+    <span class="n">native_ops</span> <span class="p">=</span> <span class="p">%{</span>
+      <span class="ss">+</span><span class="p">:</span> <span class="k">fn</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="k">end</span><span class="p">,</span>
+      <span class="ss">-</span><span class="p">:</span> <span class="k">fn</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">a</span> <span class="o">-</span> <span class="n">b</span> <span class="k">end</span><span class="p">,</span>
+      <span class="ss">*</span><span class="p">:</span> <span class="k">fn</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span> <span class="k">end</span><span class="p">,</span>
+      <span class="ss">/</span><span class="p">:</span> <span class="k">fn</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">a</span> <span class="o">/</span> <span class="n">b</span> <span class="k">end</span><span class="p">,</span>
+      <span class="p">=</span><span class="err">:</span> <span class="k">fn</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">a</span> <span class="o">==</span> <span class="n">b</span> <span class="k">end</span><span class="p">,</span>
+      <span class="ss">if</span><span class="p">:</span> <span class="k">fn</span><span class="p">(</span><span class="n">conditional</span><span class="p">,</span> <span class="n">first</span><span class="p">,</span> <span class="n">second</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="k">if</span><span class="p">(</span><span class="n">conditional</span><span class="p">)</span> <span class="k">do</span> <span class="n">first</span> <span class="k">else</span> <span class="n">second</span> <span class="k">end</span> <span class="k">end</span>
+    <span class="p">}</span>
+    <span class="k">case</span> <span class="nc">Map</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="n">native_ops</span><span class="p">,</span> <span class="n">expr</span><span class="p">)</span> <span class="k">do</span>
+      <span class="no">nil</span> <span class="p">-&gt;</span> <span class="n">eval</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="n">scope</span><span class="p">)</span>
+      <span class="n">func</span> <span class="p">-&gt;</span> <span class="n">eval</span><span class="p">([</span><span class="n">func</span><span class="p">]</span> <span class="o">++</span> <span class="n">args</span><span class="p">,</span> <span class="n">scope</span><span class="p">)</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="kd">def</span> <span class="n">eval</span><span class="p">([</span><span class="n">expr</span> <span class="p">|</span> <span class="n">args</span><span class="p">],</span> <span class="n">scope</span><span class="p">)</span> <span class="k">do</span>
+    <span class="n">sub_exprs</span> <span class="p">=</span> <span class="nc">Enum</span><span class="p">.</span><span class="n">map</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="k">fn</span>
+      <span class="p">([</span><span class="n">_h</span> <span class="p">|</span> <span class="n">_t</span><span class="p">]</span> <span class="p">=</span> <span class="n">arg</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">eval</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">scope</span><span class="p">)</span>
+      <span class="n">arg</span> <span class="p">-&gt;</span> <span class="n">arg</span>
+    <span class="k">end</span><span class="p">)</span>
+    <span class="n">apply</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">sub_exprs</span><span class="p">)</span>
+  <span class="k">end</span></code></pre></div>
+
+<p><strong>Step 3:</strong> In step 3, we iterate through <code>expr</code> but this time we use the <code>reduce</code> function to output a map which contains the values bounded by the <code>def</code> expressions. We can once again use pattern matching to make our anonymous function more concise. Our first case, where we match the head of the list to <code>:def</code> we know to return a new map with our new value. In the case that we don&#39;t find a match, simply return the existing map.</p>
+
+<div class="highlight"><pre><code class="language-elixir" data-lang="elixir"><span class="kd">defmodule</span> <span class="nc">Elisper</span> <span class="k">do</span>
+  <span class="kd">def</span> <span class="n">eval</span><span class="p">(</span><span class="n">expr</span><span class="p">)</span> <span class="k">do</span>
+    <span class="n">scope</span> <span class="p">=</span> <span class="nc">Enum</span><span class="p">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="p">%{},</span> <span class="k">fn</span>
+      <span class="p">([</span><span class="ss">:def</span> <span class="p">|</span> <span class="n">arg</span><span class="p">],</span> <span class="n">acc</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="nc">Map</span><span class="p">.</span><span class="n">put</span><span class="p">(</span><span class="n">acc</span><span class="p">,</span> <span class="nc">List</span><span class="p">.</span><span class="n">first</span><span class="p">(</span><span class="n">arg</span><span class="p">),</span> <span class="nc">List</span><span class="p">.</span><span class="n">last</span><span class="p">(</span><span class="n">arg</span><span class="p">))</span>
+      <span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">acc</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">acc</span>
+    <span class="k">end</span><span class="p">)</span>
+    <span class="n">eval</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">scope</span><span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="kd">def</span> <span class="n">eval</span><span class="p">([</span><span class="n">expr</span> <span class="p">|</span> <span class="n">args</span><span class="p">]</span> <span class="p">=</span> <span class="n">expression</span><span class="p">,</span> <span class="n">scope</span><span class="p">)</span> <span class="ow">when</span> <span class="n">is_atom</span><span class="p">(</span><span class="n">expr</span><span class="p">)</span> <span class="k">do</span>
+    <span class="n">native_ops</span> <span class="p">=</span> <span class="p">%{</span>
+      <span class="ss">+</span><span class="p">:</span> <span class="k">fn</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="k">end</span><span class="p">,</span>
+      <span class="ss">-</span><span class="p">:</span> <span class="k">fn</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">a</span> <span class="o">-</span> <span class="n">b</span> <span class="k">end</span><span class="p">,</span>
+      <span class="ss">*</span><span class="p">:</span> <span class="k">fn</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span> <span class="k">end</span><span class="p">,</span>
+      <span class="ss">/</span><span class="p">:</span> <span class="k">fn</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">a</span> <span class="o">/</span> <span class="n">b</span> <span class="k">end</span><span class="p">,</span>
+      <span class="p">=</span><span class="err">:</span> <span class="k">fn</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">a</span> <span class="o">==</span> <span class="n">b</span> <span class="k">end</span><span class="p">,</span>
+      <span class="ss">if</span><span class="p">:</span> <span class="k">fn</span><span class="p">(</span><span class="n">conditional</span><span class="p">,</span> <span class="n">first</span><span class="p">,</span> <span class="n">second</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="k">if</span><span class="p">(</span><span class="n">conditional</span><span class="p">)</span> <span class="k">do</span> <span class="n">first</span> <span class="k">else</span> <span class="n">second</span> <span class="k">end</span> <span class="k">end</span>
+    <span class="p">}</span>
+    <span class="k">case</span> <span class="nc">Map</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="n">native_ops</span><span class="p">,</span> <span class="n">expr</span><span class="p">)</span> <span class="k">do</span>
+      <span class="no">nil</span> <span class="p">-&gt;</span> <span class="n">eval</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="n">scope</span><span class="p">)</span>
+      <span class="n">func</span> <span class="p">-&gt;</span> <span class="n">eval</span><span class="p">([</span><span class="n">func</span><span class="p">]</span> <span class="o">++</span> <span class="n">args</span><span class="p">,</span> <span class="n">scope</span><span class="p">)</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="kd">def</span> <span class="n">eval</span><span class="p">([</span><span class="n">expr</span> <span class="p">|</span> <span class="n">args</span><span class="p">],</span> <span class="n">scope</span><span class="p">)</span> <span class="k">do</span>
+    <span class="n">sub_exprs</span> <span class="p">=</span> <span class="nc">Enum</span><span class="p">.</span><span class="n">map</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="k">fn</span>
+      <span class="p">([</span><span class="n">_h</span> <span class="p">|</span> <span class="n">_t</span><span class="p">]</span> <span class="p">=</span> <span class="n">arg</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">eval</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">scope</span><span class="p">)</span>
+      <span class="n">arg</span> <span class="p">-&gt;</span> <span class="n">arg</span>
+    <span class="k">end</span><span class="p">)</span>
+    <span class="n">apply</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">sub_exprs</span><span class="p">)</span>
+  <span class="k">end</span>
+
+<span class="k">end</span></code></pre></div>
+
+<p><strong>Step 4:</strong> Handling the <code>def</code> and <code>do</code> expressions during evaluation.
+Our <code>def</code> and <code>do</code> functions are a little weird and we&#39;ll have to handle them both a little differently than our arithmetic functions. In the case of <code>do</code>, we need to take a step back and think about what the function actually does. According to the <a href="https://clojuredocs.org/clojure.core/do">Clojure Docs</a> on <code>do</code>:</p>
+
+<blockquote>
+<p>Evaluates the expressions in order and returns the value of the last. If no
+expressions are supplied, returns nil.</p>
+</blockquote>
+
+<p>Following the documentation, we can simply define a function for <code>do</code> which returns the last argument that has been passed to it, that&#39;s simple enough. In the case of <code>def</code>, since we&#39;ve already handled it&#39;s purpose by binding the value to its alias within the scope, we can simply ignore it during evaluation.</p>
+
+<div class="highlight"><pre><code class="language-elixir" data-lang="elixir"><span class="kd">defmodule</span> <span class="nc">Elisper</span> <span class="k">do</span>
+  <span class="kd">def</span> <span class="n">eval</span><span class="p">(</span><span class="n">expr</span><span class="p">)</span> <span class="k">do</span>
+    <span class="n">scope</span> <span class="p">=</span> <span class="nc">Enum</span><span class="p">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="p">%{},</span> <span class="k">fn</span>
+      <span class="p">([</span><span class="ss">:def</span> <span class="p">|</span> <span class="n">arg</span><span class="p">],</span> <span class="n">acc</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="nc">Map</span><span class="p">.</span><span class="n">put</span><span class="p">(</span><span class="n">acc</span><span class="p">,</span> <span class="nc">List</span><span class="p">.</span><span class="n">first</span><span class="p">(</span><span class="n">arg</span><span class="p">),</span> <span class="nc">List</span><span class="p">.</span><span class="n">last</span><span class="p">(</span><span class="n">arg</span><span class="p">))</span>
+      <span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">acc</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">acc</span>
+    <span class="k">end</span><span class="p">)</span>
+    <span class="n">eval</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">scope</span><span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="kd">def</span> <span class="n">eval</span><span class="p">([</span><span class="n">expr</span> <span class="p">|</span> <span class="n">args</span><span class="p">]</span> <span class="p">=</span> <span class="n">expression</span><span class="p">,</span> <span class="n">scope</span><span class="p">)</span> <span class="ow">when</span> <span class="n">is_atom</span><span class="p">(</span><span class="n">expr</span><span class="p">)</span> <span class="k">do</span>
+    <span class="n">native_ops</span> <span class="p">=</span> <span class="p">%{</span>
+      <span class="ss">+</span><span class="p">:</span> <span class="k">fn</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="k">end</span><span class="p">,</span>
+      <span class="ss">-</span><span class="p">:</span> <span class="k">fn</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">a</span> <span class="o">-</span> <span class="n">b</span> <span class="k">end</span><span class="p">,</span>
+      <span class="ss">*</span><span class="p">:</span> <span class="k">fn</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span> <span class="k">end</span><span class="p">,</span>
+      <span class="ss">/</span><span class="p">:</span> <span class="k">fn</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">a</span> <span class="o">/</span> <span class="n">b</span> <span class="k">end</span><span class="p">,</span>
+      <span class="p">=</span><span class="err">:</span> <span class="k">fn</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">a</span> <span class="o">==</span> <span class="n">b</span> <span class="k">end</span><span class="p">,</span>
+      <span class="ss">if</span><span class="p">:</span> <span class="k">fn</span><span class="p">(</span><span class="n">conditional</span><span class="p">,</span> <span class="n">first</span><span class="p">,</span> <span class="n">second</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="k">if</span><span class="p">(</span><span class="n">conditional</span><span class="p">)</span> <span class="k">do</span> <span class="n">first</span> <span class="k">else</span> <span class="n">second</span> <span class="k">end</span> <span class="k">end</span><span class="p">,</span>
+      <span class="ss">do</span><span class="p">:</span> <span class="k">fn</span><span class="p">(</span><span class="n">_a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">b</span> <span class="k">end</span>
+    <span class="p">}</span>
+    <span class="k">case</span> <span class="nc">Map</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="n">native_ops</span><span class="p">,</span> <span class="n">expr</span><span class="p">)</span> <span class="k">do</span>
+      <span class="no">nil</span> <span class="p">-&gt;</span> <span class="p">(</span>
+        <span class="k">if</span> <span class="n">expr</span> <span class="o">==</span> <span class="ss">:def</span> <span class="k">do</span>
+          <span class="ss">:ok</span>
+        <span class="k">else</span>
+          <span class="n">eval</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="n">scope</span><span class="p">)</span>
+        <span class="k">end</span>
+      <span class="p">)</span>
+      <span class="n">func</span> <span class="p">-&gt;</span> <span class="n">eval</span><span class="p">([</span><span class="n">func</span><span class="p">]</span> <span class="o">++</span> <span class="n">args</span><span class="p">,</span> <span class="n">scope</span><span class="p">)</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="kd">def</span> <span class="n">eval</span><span class="p">([</span><span class="n">expr</span> <span class="p">|</span> <span class="n">args</span><span class="p">],</span> <span class="n">scope</span><span class="p">)</span> <span class="k">do</span>
+    <span class="n">sub_exprs</span> <span class="p">=</span> <span class="nc">Enum</span><span class="p">.</span><span class="n">map</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="k">fn</span>
+      <span class="p">([</span><span class="n">_h</span> <span class="p">|</span> <span class="n">_t</span><span class="p">]</span> <span class="p">=</span> <span class="n">arg</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">eval</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">scope</span><span class="p">)</span>
+      <span class="n">arg</span> <span class="p">-&gt;</span> <span class="p">(</span>
+        <span class="k">case</span> <span class="nc">Map</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="n">scope</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span> <span class="k">do</span>
+          <span class="no">nil</span> <span class="p">-&gt;</span> <span class="n">arg</span>
+          <span class="n">x</span> <span class="p">-&gt;</span> <span class="n">x</span>
+        <span class="k">end</span>
+      <span class="p">)</span>
+    <span class="k">end</span><span class="p">)</span>
+    <span class="n">apply</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">sub_exprs</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre></div>
+
+<h4>Defining Functions</h4>
+
+<p>For our last section, we&#39;ll cover how to define functions. We&#39;ll use the following syntax provided by Dan&#39;s article for defining a function:</p>
+
+<div class="highlight"><pre><code class="language-clojure" data-lang="clojure"><span class="p">(</span><span class="k">def </span><span class="nv">fn-name</span>
+  <span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">args</span><span class="p">]</span> <span class="p">(</span><span class="nf">body</span><span class="p">))</span>
+<span class="p">)</span></code></pre></div>
+
+<p>Using this syntax, functions must be defined with <code>def</code>, this may give you a hint as to where we&#39;ll need to add it in the implementation. Similar to other <code>def</code> expressions, we&#39;ll want to be able to add our function information to the scope, so that it can be used throughout the evaluation of the rest of the expressions. Functions are a slightly different case of the <code>def</code> expression that we have, so we&#39;ll need to take that into account. Before jumping into the implementation, let&#39;s write another test.</p>
+
+<div class="highlight"><pre><code class="language-elixir" data-lang="elixir"><span class="n">test</span> <span class="s2">&quot;def fn&quot;</span> <span class="k">do</span>
+ <span class="n">assert</span> <span class="p">(</span><span class="nc">Elisper</span><span class="p">.</span><span class="n">eval</span><span class="p">(</span>
+    <span class="p">[</span><span class="ss">:do</span><span class="p">,</span>
+     <span class="p">[</span><span class="ss">:def</span><span class="p">,</span> <span class="ss">:multi</span><span class="p">,</span>
+       <span class="p">[</span><span class="ss">:fn</span><span class="p">,</span> <span class="p">[</span><span class="ss">:x</span><span class="p">,</span> <span class="ss">:y</span><span class="p">],</span>
+         <span class="p">[</span><span class="ss">:*</span><span class="p">,</span> <span class="ss">:x</span><span class="p">,</span> <span class="ss">:y</span><span class="p">]</span>
+       <span class="p">]</span>
+     <span class="p">],</span>
+     <span class="p">[</span><span class="ss">:multi</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
+    <span class="p">]</span>
+  <span class="p">))</span> <span class="o">==</span> <span class="mi">12</span>
+<span class="k">end</span></code></pre></div>
+
+<p>One more thing to think about before we begin the implementation is how we want to add function information to our scope. I chose to create a map containing a <code>params</code> key and a <code>body</code> key to store the params and body of the function, respectively. After updating our scope should look similar to:</p>
+
+<div class="highlight"><pre><code class="language-elixir" data-lang="elixir"><span class="p">%{</span>
+  <span class="ss">params</span><span class="p">:</span> <span class="p">[</span><span class="ss">:x</span><span class="p">,</span> <span class="ss">:y</span><span class="p">],</span>
+  <span class="ss">body</span><span class="p">:</span>   <span class="p">[</span><span class="ss">:*</span><span class="p">,</span> <span class="ss">:x</span><span class="p">,</span> <span class="ss">:y</span><span class="p">]</span>
+<span class="p">}</span></code></pre></div>
+
+<p>Now that we have an idea of what we want to implement, let&#39;s go back to our <code>Enum.reduce</code> function.</p>
+
+<div class="highlight"><pre><code class="language-elixir" data-lang="elixir"><span class="n">scope</span> <span class="p">=</span> <span class="nc">Enum</span><span class="p">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="p">%{},</span> <span class="k">fn</span>
+  <span class="p">([</span><span class="ss">:def</span> <span class="p">|</span> <span class="n">arg</span><span class="p">],</span> <span class="n">acc</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="nc">Map</span><span class="p">.</span><span class="n">put</span><span class="p">(</span><span class="n">acc</span><span class="p">,</span> <span class="nc">List</span><span class="p">.</span><span class="n">first</span><span class="p">(</span><span class="n">arg</span><span class="p">),</span> <span class="nc">List</span><span class="p">.</span><span class="n">last</span><span class="p">(</span><span class="n">arg</span><span class="p">))</span>
+  <span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">acc</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">acc</span>
+<span class="k">end</span><span class="p">)</span></code></pre></div>
+
+<p>As we stated before, we&#39;ll want to add a case to match, we know that we still want to match for on <code>def</code> as the head of the list, but what about the tail? The tail of our list has the format <code>[fn-name, [:fn, [params], [body]]]</code>. The great thing is that we can pattern match to exactly that format. Since we&#39;ve extracted the values from the list, we can easily add a new map to the scope.</p>
+
+<div class="highlight"><pre><code class="language-elixir" data-lang="elixir"><span class="n">scope</span> <span class="p">=</span> <span class="nc">Enum</span><span class="p">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="p">%{},</span> <span class="k">fn</span>
+  <span class="p">([</span><span class="ss">:def</span> <span class="p">|</span> <span class="p">[</span><span class="n">func_name</span><span class="p">,</span> <span class="p">[</span><span class="ss">:fn</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">body</span><span class="p">]]],</span> <span class="n">acc</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="p">(</span>
+    <span class="nc">Map</span><span class="p">.</span><span class="n">put</span><span class="p">(</span><span class="n">acc</span><span class="p">,</span> <span class="n">func_name</span><span class="p">,</span> <span class="p">%{</span><span class="ss">params</span><span class="p">:</span> <span class="n">params</span><span class="p">,</span> <span class="ss">body</span><span class="p">:</span> <span class="n">body</span><span class="p">})</span>
+  <span class="p">)</span>
+  <span class="p">([</span><span class="ss">:def</span> <span class="p">|</span> <span class="n">arg</span><span class="p">],</span> <span class="n">acc</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="nc">Map</span><span class="p">.</span><span class="n">put</span><span class="p">(</span><span class="n">acc</span><span class="p">,</span> <span class="nc">List</span><span class="p">.</span><span class="n">first</span><span class="p">(</span><span class="n">arg</span><span class="p">),</span> <span class="nc">List</span><span class="p">.</span><span class="n">last</span><span class="p">(</span><span class="n">arg</span><span class="p">))</span>
+  <span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">acc</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="n">acc</span>
+<span class="k">end</span><span class="p">)</span></code></pre></div>
+
+<p>The next thing we&#39;ll want to do, is handle what to do when we come across <code>:fn</code> and our user created functions during evaluation. This hapens in the <code>nil</code> case when we lookup function replacements from our <code>native_ops</code> map. We&#39;ll have to modify the <code>nil</code> case a bit to get our desired behavior. First, we&#39;ll want to update our conditional to also return <code>:ok</code> when we come across a <code>:fn</code> value in our list of expressions. The next thing we&#39;ll want to do, is see if the <code>expr</code> is defined in our scope and if it is, evaluate the function with the correct parameters. Let&#39;s see what this looks like:</p>
+
+<div class="highlight"><pre><code class="language-elixir" data-lang="elixir"><span class="k">case</span> <span class="nc">Map</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="n">native_ops</span><span class="p">,</span> <span class="n">expr</span><span class="p">)</span> <span class="k">do</span>
+  <span class="no">nil</span> <span class="p">-&gt;</span> <span class="p">(</span>
+    <span class="k">if</span> <span class="n">expr</span> <span class="o">==</span> <span class="ss">:def</span> <span class="o">||</span> <span class="n">expr</span> <span class="o">==</span> <span class="ss">:fn</span> <span class="k">do</span>
+      <span class="ss">:ok</span>
+    <span class="k">else</span>
+      <span class="k">case</span> <span class="nc">Map</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="n">scope</span><span class="p">,</span> <span class="n">expr</span><span class="p">)</span> <span class="k">do</span>
+        <span class="p">%{</span><span class="ss">body</span><span class="p">:</span> <span class="n">body</span><span class="p">,</span> <span class="ss">params</span><span class="p">:</span> <span class="n">params</span><span class="p">}</span> <span class="p">-&gt;</span> <span class="p">(</span>
+          <span class="n">new_scope</span> <span class="p">=</span> <span class="nc">Enum</span><span class="p">.</span><span class="n">zip</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+            <span class="o">|&gt;</span> <span class="nc">Enum</span><span class="p">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">scope</span><span class="p">,</span> <span class="k">fn</span><span class="p">({</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">},</span> <span class="n">acc</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="nc">Map</span><span class="p">.</span><span class="n">put</span><span class="p">(</span><span class="n">acc</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span> <span class="k">end</span><span class="p">)</span>
+          <span class="n">eval</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="n">new_scope</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="no">nil</span> <span class="p">-&gt;</span> <span class="n">eval</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="n">scope</span><span class="p">)</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+  <span class="p">)</span>
+  <span class="n">func</span> <span class="p">-&gt;</span> <span class="n">eval</span><span class="p">([</span><span class="n">func</span><span class="p">]</span> <span class="o">++</span> <span class="n">args</span><span class="p">,</span> <span class="n">scope</span><span class="p">)</span>
+<span class="k">end</span></code></pre></div>
+
+<p>Using the <code>Map.get</code> function we&#39;ll lookup the <code>expr</code> in our <code>scope</code>. If a case matches the pattern, <code>%{body: body, params: params}</code>, that we defined for our function entries, we need to evaluate the user defined function. Before simply passing the <code>body</code> to our <code>eval</code> function, we&#39;ll need to update our <code>scope</code> with the new values. To do so, we&#39;ll first use <code>Enum.zip</code> to create a list of tuples containing the parameter name and the value associated with it. In the case of our test, our zipped list would look something like: <code>[{:x, 3}, {:y, 4}]</code>. Using this list we can once again use <code>Enum.reduce</code> to create a new scope that adds the key/value pair of the tuple to our existing scope. Using our new scope, so cleverly titled <code>new_scope</code>, and our <code>body</code> to finally evaluate the expression.</p>
+
+<p>We can now re-run all of our tests:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">mix test test/elisper_test.exs                                              0|10:06:43
+......
+
+Finished in 0.04 seconds (0.04s on load, 0.00s on tests)
+6 tests, 0 failures
+
+Randomized with seed 969698
+</code></pre></div>
+<h4>Conclusion</h4>
+
+<p>I hope that you enjoyed this blog post and maybe I&#39;ve peaked your interest to take a look into Elixir. I&#39;ve put the code on <a href="https://github.com/barakyo/elisper">Github</a> to mess around with. Pull requests are welcomed if you want to mess around and add features or clean up the code for me to learn from. :)</p>
+</p>
+        <hr />
+    </div>
+</div>            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+            <div class="row">
+    <div class="col-sm-12">
+        <blockquote class="projects">
+            <p>
+                <a href="http://itsbarakyo.com/projects/2013/12/08/counter-resets-and-database-magic.html">
+                    Counter Resets and Database Magic
+                </a>
+            </p>
+            <small>08 Dec 2013</small>
+        </blockquote>
+        <p><p>Recently, the need for a standard numbering convention came up for one of our projects at work. The client 
+requested to be able to access protocols by a unique ID. Originally I thought it&#39;d be a no brainer, I&#39;d explain 
+to them that the each protocol is already uniquely identifiable within the database, and they can just refer to 
+protocols by their unique ID in the database. Unfortunately, they didn&#39;t seem too fond of the unique ID numbering 
+scheme and proposed that the application follow a certain convention, which they created.</p>
+
+<p>The convention was simple enough to understand. It followed the format of:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">YYYY-XXX
+</code></pre></div>
+<p>Where <code>YYYY</code> was the Academic Year and <code>XXX</code> was a 3 digit number signifying that it was the nth protocol 
+scheduled for review of that academic year. For example, a protocol with the number</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">1314-016
+</code></pre></div>
+<p>Would be the 16th protocol scheduled within the 2013-2014 academic year.</p>
+
+<p>While the standard is easy enough, it brings up some concerns.</p>
+
+<ol>
+<li>Protocol numbers are generated once a protocol has been scheduled for committee review.</li>
+<li>Protocol numbers must refer to a specific protocol.</li>
+<li>The protocol number must reset after every academic year.</li>
+<li>How can I enforce this standard within the database?</li>
+</ol>
+
+<p>Regarding the first concern, I couldn&#39;t simply append a column to the protocol table since I would have a <code>NULL</code> 
+field until the protocol was scheduled (if it was ever scheduled). While adding a column would allow me to specify
+which number belonged to which protocol, it invalidate the 3NF standard I&#39;m trying to achieve. Also, how 
+would I have the database automatically increment or reset the value of the counter?</p>
+
+<p>I realized quickly that I needed another table (or two). Immediately, I realized that my <code>protocol_number</code> 
+table would need the following columns:</p>
+
+<ul>
+<li>ID - mainly for reference</li>
+<li>Protocol ID - specifies which number this protocol refers to</li>
+<li>Academic Year - the year part of the number convention</li>
+<li>Protocol Number - the counter part of the number convention</li>
+</ul>
+
+<p>While designing the table, I also realized that I didn&#39;t want to have to worry about the application needing to 
+worry about which protocol number to insert within the column and that lead me to the idea of a trigger. I know 
+that I can easily count the number of rows within a table using the SQL command <code>count(*)</code>, but how could I use 
+it for handling the protocol number field? I realized that my answer would rely in a trigger that would fire 
+before each insert on the table.</p>
+
+<p>Before jumping into creating the trigger, I had to give some more thought to the the academic year field. While 
+I could easily represent academic years with an <code>INT</code> field, it didn&#39;t seem to be sufficient, something just felt 
+dirty. I made the decision that I&#39;d create a new table, <code>academic_year</code>, which would simply store academic years. 
+This way, I could have the <code>protocol_number</code> table refer to the <code>academic_year</code> table as a foreign key.
+Specifying the field as a foreign key also provided me the added benefit of being able to lookup which protocols
+were scheduled for what year (a feature that hasn&#39;t been asked for, but can now be easily implemented).</p>
+
+<p>Given this analysis, we&#39;ve composed two tables with the following structure:</p>
+
+<div class="highlight"><pre><code class="language-mysql" data-lang="mysql"><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="nf">academic_year</span><span class="p">(</span>
+    <span class="n">id</span> <span class="kt">int</span> <span class="k">UNSIGNED</span> <span class="k">NOT</span> <span class="no">NULL</span> <span class="kp">AUTO_INCREMENT</span><span class="p">,</span>
+    <span class="n">academic_year</span> <span class="kt">int</span> <span class="k">UNSIGNED</span> <span class="k">NOT</span> <span class="no">NULL</span><span class="p">,</span>
+    <span class="k">PRIMARY</span> <span class="k">KEY</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">);</span>
+
+<span class="k">CREATE</span> <span class="k">TABLE</span> <span class="nf">protocol_number</span><span class="p">(</span>
+    <span class="n">id</span> <span class="kt">int</span> <span class="k">UNSIGNED</span> <span class="k">NOT</span> <span class="no">NULL</span> <span class="kp">AUTO_INCREMENT</span><span class="p">,</span>
+    <span class="n">academic_year_id</span> <span class="kt">int</span> <span class="k">UNSIGNED</span> <span class="k">NOT</span> <span class="no">NULL</span><span class="p">,</span>
+    <span class="n">protocol_id</span> <span class="kt">int</span> <span class="k">UNSIGNED</span> <span class="k">NOT</span> <span class="no">NULL</span><span class="p">,</span>
+    <span class="n">protocol_number</span> <span class="kt">int</span> <span class="k">UNSIGNED</span> <span class="k">NOT</span> <span class="no">NULL</span><span class="p">,</span>
+    <span class="k">FOREIGN</span> <span class="k">KEY</span> <span class="p">(</span><span class="n">protocol_id</span><span class="p">)</span> <span class="k">REFERENCES</span> <span class="nf">protocols</span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+    <span class="k">KEY</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">);</span></code></pre></div>
+
+<p>Almost complete. We still have one tiny little problem. We want to ensure that our protocol numbers are unique 
+and also that they&#39;re unique to a single protocol. Using primary keys we can specify that our <code>protocol_number</code> 
+and <code>academic_year_id</code> columns are unique. In addition, we can easily add a unique key on our <code>protocol_id</code> field 
+allowing us to ensure that this field is also unique. Doing so creates the following structure:</p>
+
+<div class="highlight"><pre><code class="language-mysql" data-lang="mysql"><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="nf">protocol_number</span><span class="p">(</span>
+    <span class="n">id</span> <span class="kt">int</span> <span class="k">UNSIGNED</span> <span class="k">NOT</span> <span class="no">NULL</span> <span class="kp">AUTO_INCREMENT</span><span class="p">,</span>
+    <span class="n">academic_year_id</span> <span class="kt">int</span> <span class="k">UNSIGNED</span> <span class="k">NOT</span> <span class="no">NULL</span><span class="p">,</span>
+    <span class="n">protocol_id</span> <span class="kt">int</span> <span class="k">UNSIGNED</span> <span class="k">NOT</span> <span class="no">NULL</span><span class="p">,</span>
+    <span class="n">protocol_number</span> <span class="kt">int</span> <span class="k">UNSIGNED</span> <span class="k">NOT</span> <span class="no">NULL</span><span class="p">,</span>
+    <span class="k">FOREIGN</span> <span class="k">KEY</span> <span class="p">(</span><span class="n">protocol_id</span><span class="p">)</span> <span class="k">REFERENCES</span> <span class="nf">protocols</span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+    <span class="k">UNIQUE</span> <span class="k">KEY</span> <span class="nf">unique_protocol_id</span> <span class="p">(</span><span class="n">protocol_id</span><span class="p">),</span>
+    <span class="k">FOREIGN</span> <span class="k">KEY</span> <span class="p">(</span><span class="n">academic_year_id</span><span class="p">)</span> <span class="k">REFERENCES</span> <span class="nf">academic_year</span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+    <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="n">protocol_number</span><span class="p">,</span> <span class="n">academic_year_id</span><span class="p">),</span>
+    <span class="k">KEY</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">);</span></code></pre></div>
+
+<p>Finally, we can create our trigger to handle incrementing the counter. Our trigger will be based around the query</p>
+
+<div class="highlight"><pre><code class="language-mysql" data-lang="mysql"><span class="k">SELECT</span> <span class="nf">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">as</span> <span class="n">num_protocols</span> 
+<span class="k">FROM</span> <span class="n">eirb_number</span> 
+<span class="k">WHERE</span> <span class="n">academic_year_id</span><span class="o">=</span><span class="p">[</span><span class="n">ACADEMIC_YEAR_ID</span><span class="p">]</span></code></pre></div>
+
+<p>The query will return the number of rows that exist with the given <code>ACADEMIC_YEAR_ID</code>. All we would have to do 
+now is take the results of this query, increment it by 1, and then set it as the value for the 
+<code>protocol_number</code> column for the new row being inserted into the database. Given our analysis it sounds like 
+we have all we need to create our a trigger, that is, when it occurs, <code>BEFORE INSERT</code> and  what we want to 
+add/change <code>protocol_number</code> with our <code>count(*)</code> value.</p>
+
+<p>Behold, our trigger:</p>
+
+<div class="highlight"><pre><code class="language-mysql" data-lang="mysql"><span class="n">delimiter</span> <span class="o">//</span>
+<span class="k">CREATE</span> <span class="k">TRIGGER</span> <span class="n">insert_protocol_num_trigger</span> 
+<span class="k">BEFORE</span> <span class="k">INSERT</span> <span class="k">on</span> <span class="n">eirb_number</span>
+<span class="k">for</span> <span class="k">each</span> <span class="n">row</span>
+<span class="n">BEGIN</span>
+    <span class="kt">SET</span> <span class="n">new</span><span class="p">.</span><span class="n">protocol_number</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="k">SELECT</span> <span class="nf">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">as</span> <span class="n">num_protocols</span> 
+        <span class="k">FROM</span> <span class="n">eirb_number</span> 
+        <span class="k">WHERE</span> <span class="n">academic_year_id</span><span class="o">=</span><span class="n">new</span><span class="p">.</span><span class="n">academic_year_id</span>
+    <span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+<span class="n">END</span><span class="p">;</span> <span class="o">//</span>
+<span class="n">DELIMITER</span> <span class="p">;</span></code></pre></div>
+
+<p>Now all our queries/application have to worry about is what protocol they want to create the number for and 
+which academic year that protocol belongs to. The database will handle the rest. Our insert query can now look 
+something like:</p>
+
+<div class="highlight"><pre><code class="language-mysql" data-lang="mysql"><span class="k">INSERT</span> <span class="k">INTO</span> <span class="nf">protocol_number</span><span class="p">(</span><span class="n">protocol_id</span><span class="p">,</span> <span class="n">academic_year_id</span><span class="p">)</span> <span class="k">VALUES</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span></code></pre></div>
+
+<p>Now we&#39;ve handled the case of reset counters through the use of database magic (AKA triggers).</p>
+
+<!---
+ Protocols can also have renewals and 
+revisions, which would follow a similar format, just with certain extensions. If the protocol from the previous 
+example was renewed for another year, then the renewed protocol would have the number:
+
+    1314-016-a
+
+The appended letters `a-z` would sig
+-->
+</p>
+        <hr />
+    </div>
+</div>            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+            <div class="row">
+    <div class="col-sm-12">
+        <blockquote class="projects">
+            <p>
+                <a href="http://itsbarakyo.com/projects/2013/05/29/python-excel-xlrd-and-xlwt.html">
+                    Python-Excel: XLRD & XLWT
+                </a>
+            </p>
+            <small>29 May 2013</small>
+        </blockquote>
+        <p><p>The other week we received a request for a small script from a department on campus. The department needed to evaluate data from a Microsoft Excel worksheet which they wrote a macro for. Their problem, though, was to aggregate all their data into one sheet. This aggregation process was not only the most tedious but was also their longest task taking nearly 2 weeks to complete. My coworkers and I were shocked that they&#39;ve continued this process for so long without looking to automate it somehow, so we took on the challenge to ease the pain in their lives. </p>
+
+<p>I set out to write a Python script and immediately researched what Microsoft Excel libraries are available for Python. I quick found Python-Excel and the XLRD and XLWT libraries, which I have to say, have been nothing short but amazing to use. The libraries are intuitive and easy to use. There was not a function I could think of that this library didn&#39;t provide. The code can be found on <a href="https://github.com/barakyo/excel-extractor">GitHub</a>.</p>
+
+<p>Just some quick examples of how I was using the libraries:</p>
+
+<p><strong>Opening an excel file:</strong> </p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">try</span><span class="p">:</span>
+    <span class="c"># Open the book</span>
+    <span class="n">book</span> <span class="o">=</span> <span class="n">xlrd</span><span class="o">.</span><span class="n">open_workbook</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&quot;File: &quot;</span> <span class="o">+</span> <span class="n">file_name</span> <span class="o">+</span> <span class="s">&quot; does not exist&quot;</span><span class="p">)</span></code></pre></div>
+
+<p><strong>Opening a specific sheet:</strong></p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="c"># Try to open the specific sheet</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">summary_sheet</span> <span class="o">=</span> <span class="n">book</span><span class="o">.</span><span class="n">sheet_by_name</span><span class="p">(</span><span class="s">&#39;For Summary File&#39;</span><span class="p">)</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&#39;Could not open sheet &#39;</span> <span class="o">+</span> <span class="n">sheet_name</span> <span class="o">+</span> <span class="s">&#39; in file &#39;</span> <span class="o">+</span> <span class="n">file_name</span><span class="p">)</span></code></pre></div>
+
+<p><strong>Copying a row:</strong></p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">row</span> <span class="o">=</span> <span class="p">[</span><span class="n">summary_sheet</span><span class="o">.</span><span class="n">cell</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">summary_sheet</span><span class="o">.</span><span class="n">ncols</span><span class="p">)]</span></code></pre></div>
+
+<p><strong>Creating a new workbook and sheet:</strong></p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="c"># Create a new workbook</span>
+<span class="n">new_workbook</span> <span class="o">=</span> <span class="n">xlwt</span><span class="o">.</span><span class="n">Workbook</span><span class="p">()</span>
+<span class="c"># Create a new sheet</span>
+<span class="n">new_sheet</span> <span class="o">=</span> <span class="n">new_workbook</span><span class="o">.</span><span class="n">add_sheet</span><span class="p">(</span><span class="s">&#39;Sheet1&#39;</span><span class="p">)</span></code></pre></div>
+
+<p><strong>Writing data to the new workbook:</strong></p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="c"># Write the data to the sheet</span>
+<span class="n">new_sheet</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">current_row</span><span class="p">[</span><span class="n">col</span><span class="p">])</span></code></pre></div>
+
+<p><strong>Saving a workbook:</strong></p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">new_workbook</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span></code></pre></div>
+
+<p>Doesn&#39;t get much simpler than that! :)</p>
+</p>
+        <hr />
+    </div>
+</div>            
+        
+    
+        
+    
+        
+            <div class="row">
+    <div class="col-sm-12">
+        <blockquote class="projects">
+            <p>
+                <a href="http://itsbarakyo.com/projects/2013/02/03/my-first-jquery-plugin-selectall.html">
+                    My first jQuery Plugin--SelectAll
+                </a>
+            </p>
+            <small>03 Feb 2013</small>
+        </blockquote>
+        <p><p>
+    Refactoring code has been on my mind more lately than usual. I feel that if I&#39;m not actively thinking and keeping in mind of what I&#39;m coding, that I&#39;m bound to rewrite code I&#39;ve already written elsewhere. While working on Gavel&#39;s &quot;Manage&quot; page (still thinking of a clever title for that page), I realized that I had a set of checkboxes that I needed to keep track of for both my labels tab and my events tab. I wrote some small Javascript code to handle keeping track of labels as well as select/deselect all checkboxes, but when I started the events section, I realize that I didn&#39;t want to have to rewrite all this code. A lightbulb went off in my head and rather than googling for a jQuery plugin, I decided to challenge myself and write my own, so I present <a href="https://github.com/barakyo/selectall" target="_blank">jQuery Select All</a>. The plugin will take checkboxes as an input and keep track of them in an array. An optional select/deselect all can be passed in with the allSelector parameter. I&#39;m sure this has been written already, but it was a good challenge for myself to think abstractly. Go check it out and fork me if you want!
+</p></p>
+        <hr />
+    </div>
+</div>            
+        
+    
+        
+    
+</div>
+</body>
+</html>
