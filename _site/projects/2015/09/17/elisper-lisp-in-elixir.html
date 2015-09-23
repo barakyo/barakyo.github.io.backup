@@ -2,10 +2,10 @@
 <html>
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link href="http://itsbarakyo.com/css/bootstrap.css" rel="stylesheet">
-        <link href="http://itsbarakyo.com/css/syntax.css" rel="stylesheet">
-        <script type="text/javascript" src="http://itsbarakyo.com/js/jquery-1.10.2.min.js"></script>
-        <script type="text/javascript" src="http://itsbarakyo.com/js/collapse.js"></script>
+        <link href="http://barakyo.github.io//css/bootstrap.css" rel="stylesheet">
+        <link href="http://barakyo.github.io//css/syntax.css" rel="stylesheet">
+        <script type="text/javascript" src="http://barakyo.github.io//js/jquery-1.10.2.min.js"></script>
+        <script type="text/javascript" src="http://barakyo.github.io//js/collapse.js"></script>
         <title>itsbarakyo | Elisper - Parsing Lisp in Elixir</title>
     </head>
     <body>
@@ -22,19 +22,19 @@
             <div class="collapse navbar-collapse" id="mobile-links">
                 <ul class="nav navbar visible-xs">
                     <li>
-                        <a href="http://itsbarakyo.com/" class="btn btn-success btn-lg btn-block">HOME</a>
+                        <a href="http://barakyo.github.io//" class="btn btn-success btn-lg btn-block">HOME</a>
                     </li>
                     <li>
-                        <a href="http://itsbarakyo.com/personal/" class="btn btn-info btn-lg btn-block">PERSONAL</a>
+                        <a href="http://barakyo.github.io//personal/" class="btn btn-info btn-lg btn-block">PERSONAL</a>
                     </li>
                     <li>
-                        <a href="http://itsbarakyo.com/likes/" class="btn btn-like btn-lg btn-block">LIKES</a>
+                        <a href="http://barakyo.github.io//likes/" class="btn btn-like btn-lg btn-block">LIKES</a>
                     </li>
                     <li>
-                        <a href="http://itsbarakyo.com/notes/" class="btn btn-warning btn-lg btn-block">NOTES</a>
+                        <a href="http://barakyo.github.io//notes/" class="btn btn-warning btn-lg btn-block">NOTES</a>
                     </li>
                     <li>
-                        <a href="http://itsbarakyo.com/projects/" class="btn btn-danger btn-lg btn-block">PROJECTS</a>
+                        <a href="http://barakyo.github.io//projects/" class="btn btn-danger btn-lg btn-block">PROJECTS</a>
                     </li>
                 </ul>
             </div>
@@ -45,19 +45,19 @@
                     <div class="col-sm-12 hidden-xs">
                         <div class="btn-toolbar">
                             <div class="btn-group btn-group-lg">
-                                <a href="http://itsbarakyo.com" class="btn btn-success">HOME</a>
+                                <a href="http://barakyo.github.io/" class="btn btn-success">HOME</a>
                             </div>
                             <div class="btn-group btn-group-lg">
-                                <a href="http://itsbarakyo.com/personal/" class="btn btn-info">PERSONAL</a>
+                                <a href="http://barakyo.github.io//personal/" class="btn btn-info">PERSONAL</a>
                             </div>
                             <div class="btn-group btn-group-lg">
-                                <a href="http://itsbarakyo.com/likes/" class="btn btn-like">LIKES</a>
+                                <a href="http://barakyo.github.io//likes/" class="btn btn-like">LIKES</a>
                             </div>
                             <div class="btn-group btn-group-lg">
-                                <a href="http://itsbarakyo.com/notes/" class="btn btn-warning">NOTES</a>
+                                <a href="http://barakyo.github.io//notes/" class="btn btn-warning">NOTES</a>
                             </div>
                             <div class="btn-group btn-group-lg">
-                                <a href="http://itsbarakyo.com/projects/" class="btn btn-danger">PROJECTS</a>
+                                <a href="http://barakyo.github.io//projects/" class="btn btn-danger">PROJECTS</a>
                             </div>
                         </div>
                     </div>
@@ -69,7 +69,7 @@
         <div class="col-sm-12">
             <blockquote class="projects">
                 <p>
-                    <a href="http://itsbarakyo.com/projects/2015/09/17/elisper-lisp-in-elixir">
+                    <a href="http://barakyo.github.io//projects/2015/09/17/elisper-lisp-in-elixir">
                         Elisper - Parsing Lisp in Elixir
                     </a>
                 </p>
@@ -109,17 +109,16 @@
 <span class="k">end</span></code></pre></div>
 
 <p>In our first unit test, we&#39;re creating an anonymous function <code>sum</code> which we&#39;re passing to our <code>eval</code> function with the arguments 1 and 2. Note that for pattern matching our <code>expr</code> value would be the function <code>sum</code> and the <code>args</code> parameter would take the value <code>[1,2]</code>. Let&#39;s run our test and see what we get...</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">[~/D/elisper|ruby-2.2.3]
-$ mix test lib/elisper.ex:8                                                    0|11:22:59
+<div class="highlight"><pre><code class="language-text" data-lang="text">mix test test/elisper_test.exs:8                                             0|10:47:19
+Compiled lib/elisper.ex
+Generated elisper app
 Including tags: [line: &quot;8&quot;]
 Excluding tags: [:test]
 
+.
 
-
-Finished in 0.04 seconds (0.04s on load, 0.00s on tests)
-0 tests, 0 failures
-
-Randomized with seed 560288
+Finished in 0.07 seconds (0.07s on load, 0.00s on tests)
+1 tests, 0 failures
 </code></pre></div>
 <h4>Mathematical and Native Operations</h4>
 

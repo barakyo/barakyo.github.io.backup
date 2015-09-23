@@ -45,17 +45,16 @@ end
 
 In our first unit test, we're creating an anonymous function `sum` which we're passing to our `eval` function with the arguments 1 and 2. Note that for pattern matching our `expr` value would be the function `sum` and the `args` parameter would take the value `[1,2]`. Let's run our test and see what we get...
 
-    [~/D/elisper|ruby-2.2.3]
-    $ mix test lib/elisper.ex:8                                                    0|11:22:59
+    mix test test/elisper_test.exs:8                                             0|10:47:19
+    Compiled lib/elisper.ex
+    Generated elisper app
     Including tags: [line: "8"]
     Excluding tags: [:test]
 
+    .
 
-
-    Finished in 0.04 seconds (0.04s on load, 0.00s on tests)
-    0 tests, 0 failures
-
-    Randomized with seed 560288
+    Finished in 0.07 seconds (0.07s on load, 0.00s on tests)
+    1 tests, 0 failures
 
 #### Mathematical and Native Operations ####
 The next step in Dan's article is the ability to pass arithmetic functions such as plus, minus, division, subtraction, etc. Dan accomplishes this by creating a Javascript object which he uses the passed in string as a key in the object's properties. We can follow a similar example in Elixir using Maps and atoms for cleaner syntax. Originally I was hoping to be able to pass in the already defined arithmetic functions in Elixir such as `Kernal.+/2` but I was unsuccessful in passing the function without it being evaluated. Our syntax for evaluating our "native" functions will be using atoms. Let's start by writing a test to show how this would look.
